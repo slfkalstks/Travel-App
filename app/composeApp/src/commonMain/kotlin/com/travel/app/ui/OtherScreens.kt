@@ -21,10 +21,10 @@ import io.ktor.http.encodeURLQueryComponent
 
 @Composable
 fun ExploreScreen(data: Workspace, busy: Boolean, onFavorite: (Favorite) -> Unit) {
-    var query by rememberSaveable { mutableStateOf("") }
-    var filter by rememberSaveable { mutableIntStateOf(0) }
+    var query by rememberSaveable(data.trip.id) { mutableStateOf("") }
+    var filter by rememberSaveable(data.trip.id) { mutableIntStateOf(0) }
     val open = rememberExternalUrlLauncher()
-    var linkError by remember { mutableStateOf(false) }
+    var linkError by remember(data.trip.id) { mutableStateOf(false) }
     val savedCount = data.favorites.count { it.saved }
     val results = data.favorites
         .filter { (it.title + it.location + it.note).contains(query, ignoreCase = true) }

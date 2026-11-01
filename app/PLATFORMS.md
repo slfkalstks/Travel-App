@@ -51,7 +51,7 @@ Xcode 빌드 스크립트가 `:composeApp:embedAndSignAppleFrameworkForXcode`를
 
 - Android: 최종 UI 전면 수정 후 `:androidApp:assembleDebug` 성공(7초), API 35 에뮬레이터에 재설치·실행 확인. APK는 `../releases/yeojeong-android-debug.apk`에 저장하며 저장소에서는 제외합니다.
 - iOS: `:composeApp:linkDebugFrameworkIosSimulatorArm64` 성공. 최종 모바일 수정 후 Xcode 26.6의 Debug iPhone simulator 앱 빌드 성공, iPhone 16 Pro / iOS 18.2 시뮬레이터 재설치·실행 확인. Bundle ID는 `com.travel.app`입니다.
-- 공통 상태 관리 테스트 12개 + 외부 URL 검증 테스트 4개: 총 16개 통과 (내부 JVM 테스트 러너).
+- 공통 상태 관리 테스트 12개 + 다중 여행 상태 관리 9개 + 목적지 검색 4개 + 외부 URL 검증 테스트 4개: 총 29개 통과 (내부 JVM 테스트 러너).
 - Android 시스템 뒤로가기: 설정 화면에서 시스템 Back을 눌렀을 때 홈이 복원되고 앱이 전면에 남는 것을 접근성 트리로 확인했습니다.
 - 항공권 연결: Google 항공편의 왕복·편도 주소가 공항·날짜를 반영하는 것을 실제 브라우저로 확인했습니다. 자세한 근거는 `../docs/FLIGHT_SEARCH_INTEGRATION.md`에 있습니다.
 - 실제 iPhone 기기 서명과 앱스토어 배포는 수행하지 않았습니다.

@@ -135,7 +135,7 @@ class DemoApiTest {
         assertEquals(1, final.journals.count { it.title == journal.title })
         assertThrows(IdempotencyConflict::class.java) { restarted.addJournal(journal, "restart-expense") }
     }
-    @Test fun `legacy flat store migration keeps all data and corrects insurance task narrowly`() {
+    @Test fun `legacy flat store migration preserves all original data exactly`() {
         val path = Files.createTempDirectory("yeohaeng-legacy-").resolve("workspace.json")
         val seed = javaClass.getResourceAsStream("/seed-workspace.json")!!.use { mapper.readValue(it, Workspace::class.java) }
         val legacy = seed.copy(tasks = seed.tasks.map {
@@ -144,7 +144,7 @@ class DemoApiTest {
         mapper.writeValue(path.toFile(), legacy)
         val migrated = WorkspaceRepository(mapper, path.toString()).read()
         assertTrue(migrated.tasks.single { it.id == "task-04" }.done)
-        assertEquals("여행자 보험 증권 확인", migrated.tasks.single { it.id == "task-04" }.title)
+        assertEquals(legacy, migrated)
         assertEquals(legacy.expenses, migrated.expenses)
         assertEquals(legacy.events, migrated.events)
     }

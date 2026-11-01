@@ -22,13 +22,15 @@ import com.travel.app.data.*
 
 @Composable fun TripScreen(data:Workspace,tab:Int,onTab:(Int)->Unit,busy:Boolean,onTask:(TravelTask)->Unit,onAdd:(String)->Unit,onFlights:()->Unit) {
     var selectedDay by rememberSaveable(data.trip.id){mutableStateOf(data.trip.startDate)}
+    val visibleDay=selectedDay.takeIf{it>=data.trip.startDate&&it<=data.trip.endDate}?:data.trip.startDate
+    LaunchedEffect(visibleDay){selectedDay=visibleDay}
     ScreenColumn {
         Column(verticalArrangement=Arrangement.spacedBy(8.dp)){
             Text(data.trip.title,fontSize=28.sp,fontWeight=FontWeight.Bold)
             Text("${data.trip.startDate.take(4)}. ${shortDate(data.trip.startDate)} — ${shortDate(data.trip.endDate)} · ${data.trip.travelers}명",fontSize=14.sp,color=TextSecondary)
         }
         Tabs(listOf("일정","준비물","예약","경비"),tab,onSelect=onTab)
-        Column { when(tab){0->Schedule(data,selectedDay,{selectedDay=it},onAdd);1->Checklist(data,busy,onTask,onAdd);2->Bookings(data,onFlights);else->Budget(data){onAdd("expense")}} }
+        Column { when(tab){0->Schedule(data,visibleDay,{selectedDay=it},onAdd);1->Checklist(data,busy,onTask,onAdd);2->Bookings(data,onFlights);else->Budget(data){onAdd("expense")}} }
     }
 }
 @Composable private fun Schedule(data:Workspace,day:String,onDay:(String)->Unit,onAdd:(String)->Unit) {

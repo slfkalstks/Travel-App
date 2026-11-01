@@ -44,15 +44,49 @@
 |---|---|
 | <img src="docs/screenshots/23-task-edit.png" width="240" alt="완료 상태를 유지하며 준비 항목 수정"/> | <img src="docs/screenshots/24-task-delete.png" width="240" alt="항목 이름을 보여주는 삭제 확인"/> |
 
+| 여행 목록 | 새 여행 | 여행 수정 | 여행 보관 |
+|---|---|---|---|
+| <img src="docs/screenshots/25-trip-list.png" width="200" alt="여러 여행 선택과 검색"/> | <img src="docs/screenshots/26-trip-create.png" width="200" alt="목적지와 기간을 입력하는 새 여행"/> | <img src="docs/screenshots/29-trip-edit.png" width="200" alt="여행 정보 수정"/> | <img src="docs/screenshots/30-trip-archive.png" width="200" alt="여행 보관 확인"/> |
+
+| 다른 도시 홈 | 여행별 항공 검색 | 목록 검색 |
+|---|---|---|
+| <img src="docs/screenshots/27-new-trip-home.png" width="240" alt="도쿄 여행 홈"/> | <img src="docs/screenshots/28-new-trip-flights.png" width="240" alt="도쿄 여행 날짜와 공항"/> | <img src="docs/screenshots/31-trip-search.png" width="240" alt="여행 목록 검색 상태 유지"/> |
+
+| 보관 목록 | 보관 해제 | 여행 삭제 확인 |
+|---|---|---|
+| <img src="docs/screenshots/32-trip-archived-list.png" width="240" alt="보관한 여행 목록"/> | <img src="docs/screenshots/33-trip-unarchive.png" width="240" alt="여행 보관 해제 확인"/> | <img src="docs/screenshots/34-trip-delete.png" width="240" alt="여행과 관련 자료 삭제 전 영향 확인"/> |
+
+| 여행이 없는 홈 | 첫 여행 생성 후 홈 |
+|---|---|
+| <img src="docs/screenshots/35-empty-trips.png" width="240" alt="첫 여행 생성 안내"/> | <img src="docs/screenshots/36-first-trip-home.png" width="240" alt="빈 저장소에서 생성한 첫 여행 홈"/> |
+
+| 국가 검색 | 일본의 도시·지역 | 도시 검색 |
+|---|---|---|
+| <img src="docs/screenshots/37-country-search.png" width="240" alt="국가 검색"/> | <img src="docs/screenshots/38-country-places.png" width="240" alt="일본의 도시·지역"/> | <img src="docs/screenshots/39-place-search.png" width="240" alt="도시 검색"/> |
+
+| 목적지 선택 결과 | 국가 변경 | 기존 도시 초기화 |
+|---|---|---|
+| <img src="docs/screenshots/40-selected-destination.png" width="240" alt="목적지 선택 결과"/> | <img src="docs/screenshots/41-changed-country.png" width="240" alt="국가 변경"/> | <img src="docs/screenshots/42-reset-place.png" width="240" alt="기존 도시 초기화"/> |
+
+| 국가별 검색 범위 | 검색 키보드 | 목적지 공항 연동 |
+|---|---|---|
+| <img src="docs/screenshots/43-country-scoped-empty.png" width="240" alt="국가별 검색 범위"/> | <img src="docs/screenshots/44-place-keyboard.png" width="240" alt="검색 키보드"/> | <img src="docs/screenshots/45-selected-city-flights.png" width="240" alt="목적지 공항 연동"/> |
+
+지역 데이터 출처
+
+<img src="docs/screenshots/46-destination-sources.png" width="240" alt="지명 데이터 출처와 라이선스"/>
+
 항공편 검색 결과는 외부 제공자 화면이며, 표시된 가격과 이용 가능 여부는 조회 시점에 따라 달라집니다.
 
 ## 주요 기능
 
-- **여행 관리:** 날짜별 일정 조회·추가·수정·삭제, 일정 카드의 메모 미리보기와 상세 메모 편집, 준비물 추가·수정·삭제·완료 표시, 예약 계획 상세 조회, 지출 추가·예산 합계, 여행 메모 작성.
+- **여행 관리:** 여러 여행의 생성·선택·검색·수정·보관/해제·삭제, 여행별 일정·준비물·경비·예약·장소·기록 분리. 이름·도시/지역·국가·시작/종료일·인원·원화 예산을 편집하며, 여행이 없으면 새 여행 생성으로 안내합니다.
+- **목적지 선택:** 국가를 검색·선택한 뒤 해당 국가의 도시·지역만 검색합니다. 국가 변경 시 이전 도시를 초기화하고, 한글·영문 검색과 목록 밖 지역의 직접 입력을 지원합니다. 오프라인 지명 데이터와 라이선스는 [데이터 문서](docs/DESTINATION_DATA.md)에 기록했습니다.
+- **여행 상세:** 날짜별 일정 조회·추가·수정·삭제, 일정 카드의 메모 미리보기와 상세 메모 편집, 준비물 추가·수정·삭제·완료 표시, 예약 계획 상세 조회, 지출 추가·예산 합계, 여행 메모 작성.
 - **항공권:** 출발·도착 공항 선택, 왕복·편도, 날짜 선택 후 Google 항공편 검색으로 이동. 노선과 날짜를 전달하며 인원·좌석·가격 확인과 예약은 제공자 화면에서 진행합니다.
 - **장소:** 검색·카테고리·저장 필터, 즐겨찾기, Google 지도 열기.
 - **모바일 UX:** 4개 하단 탭, 날짜 달력, 입력 필드별 오류, 저장 진행 상태, 실패 시 내용 유지, 탭 이동 시 검색 조건 유지, 다크 모드·동작 줄이기.
-- **데이터 처리:** Spring API와 JSON 파일 저장, 입력 검증, POST 멱등성 키, 조회와 저장의 경쟁 방지.
+- **데이터 처리:** Spring API와 여행별 JSON 저장, 입력 검증, POST 멱등성 키, 조회와 저장의 경쟁 방지. 기존 단일 여행 저장 파일은 원본 바이트 백업 후 schema 2로 이전합니다.
 
 ## 실행
 
@@ -98,19 +132,21 @@ Flutter·React Native, SwiftUI 분리, 다른 백엔드·DB와의 비교는 [기
 
 ## 검증과 현재 범위
 
-Android APK와 iOS 시뮬레이터 앱을 빌드·설치해 확인했습니다. 백엔드 통합 테스트 24개, 공통 데이터·외부 URL 테스트 16개를 통과했습니다. [검증 기록](docs/VERIFICATION.md)
+Android APK와 iOS 시뮬레이터 앱을 빌드·설치해 확인했습니다. 다중 여행 변경을 포함해 백엔드 통합 테스트 33개, 공통 데이터·외부 URL 테스트 29개를 통과하고 Android·iOS를 다시 빌드했습니다. 실제 화면 조작의 확인 범위는 [검증 기록](docs/VERIFICATION.md)에 구분했습니다.
 
-현재 개발용 초기 여행 데이터로 실행하며, 서버는 로컬 단일 사용자 환경을 대상으로 합니다. 로그인·사용자별 권한, 다중 여행 생성·수정, 오프라인 동기화, 파일 첨부, 내부 실시간 운임 API와 예약·결제는 후속 범위입니다. 실제 기기와 스토어 배포는 별도 검증이 필요합니다.
+서버는 로컬 단일 사용자 개발 환경을 대상으로 합니다. 기존 개발 여행 데이터는 보존하며 새 여행에는 예시 일정이나 준비물을 복사하지 않습니다. 로그인·사용자별 권한, 오프라인 동기화, 파일 첨부, PostgreSQL 실제 연결, 내부 실시간 운임 API와 예약·결제는 아직 구현하지 않았습니다. 실제 기기와 스토어 배포도 별도 검증이 필요합니다. **전체 PRD 목표는 진행 중**이며 요구사항별 남은 조건은 [전체 목표 감사](GOAL_AUDIT.md)에 기록합니다.
 
 ## 문서
 
 - [기획·PRD](docs/planning/01_기획_PRD.md)
 - [시스템·데이터·API 설계](docs/planning/02_시스템_데이터_API_설계.md)
+- [현재 다중 여행 API·저장 계약](docs/MULTITRIP_API.md)
+- [전체 목표 진행 감사](GOAL_AUDIT.md)
 - [모바일 UI·항공권 수정사항](docs/planning/05_모바일_UI_재설계_및_항공권.md)
 - [대학 발표 설명 원고](docs/planning/04_대학발표_설명원고.md)
 - [디자인 기준](DESIGN.md) / [디자인 도구 적용 기록](docs/redesign-review.md) / [설치 기록](design-references/INSTALLATIONS.md)
 
-발표 자료는 문서로 정리했으며 PPTX는 생성하지 않았습니다. MengTo, Taste, Vercel, 21st, awesome-design-md, ECC의 관련 지침을 활용했습니다. 21st 원격 검색은 계정 인증이 필요하며 웹 전용 자동 검사를 Kotlin 검증 결과로 간주하지 않습니다.
+발표 설명 원고는 문서 초안이며 PPTX는 아직 생성하지 않았습니다. 사용자 승인에 따라 전체 앱 완성 후 최종 구현과 검증 결과를 반영한 PPT를 제작합니다. MengTo, Taste, Vercel, 21st, awesome-design-md, ECC의 관련 지침을 활용했습니다. 21st 원격 검색은 계정 인증이 필요하며 웹 전용 자동 검사를 Kotlin 검증 결과로 간주하지 않습니다.
 
 ## 구성
 

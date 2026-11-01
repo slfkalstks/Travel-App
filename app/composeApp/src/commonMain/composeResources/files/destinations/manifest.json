@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-11-01T13:10:37.450706+00:00",
+  "counts": {
+    "countriesAndTerritories": 257,
+    "cities": 34195,
+    "firstLevelRegions": 3864,
+    "places": 38059,
+    "countriesWithCities": 244,
+    "citiesWithKoreanNames": 6105,
+    "regionsWithKoreanNames": 2394
+  },
+  "sources": {
+    "countryInfo.txt": {
+      "url": "https://download.geonames.org/export/dump/countryInfo.txt",
+      "bytes": 32112,
+      "sha256": "79f8f59ea01cbb40438bf1856dd6c2ff201f03f8fc72d0530b2646aaf603ef04"
+    },
+    "cities15000.zip": {
+      "url": "https://download.geonames.org/export/dump/cities15000.zip",
+      "bytes": 3365242,
+      "sha256": "1d1a86cc57a641387453beae0a0f89a59cbea636143fccb17368580df23776eb"
+    },
+    "admin1CodesASCII.txt": {
+      "url": "https://download.geonames.org/export/dump/admin1CodesASCII.txt",
+      "bytes": 151510,
+      "sha256": "42458864faa9887933d75c33408d4a808b765edbcd62a1328fa9e8cfcdfc718e"
+    },
+    "alternateNamesV2.zip": {
+      "url": "https://download.geonames.org/export/dump/alternateNamesV2.zip",
+      "bytes": 205174661,
+      "sha256": "f9e7ec200cee791918b55f3def24f5af65fa723fa8bf2d5dec97d71731931eee"
+    },
+    "geonames-readme.txt": {
+      "url": "https://download.geonames.org/export/dump/readme.txt",
+      "bytes": 8843,
+      "sha256": "b1957379b6c1242c700c98ac9a8aa0a09f56c3c0a50ee72175527005f48ef2c5"
+    },
+    "cldr-ko.json": {
+      "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/7d2b9cb11cec08f4d333ad73209deb3df0711c3b/cldr-json/cldr-localenames-full/main/ko/territories.json",
+      "bytes": 10673,
+      "sha256": "47b2f98d9cbf823068b0594074fe5db7fde80f9baf6a8038bd24ed81aefe7829"
+    },
+    "cldr-en.json": {
+      "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/7d2b9cb11cec08f4d333ad73209deb3df0711c3b/cldr-json/cldr-localenames-full/main/en/territories.json",
+      "bytes": 10190,
+      "sha256": "1326fb3bcdf8b8cf63df73ea02ea7f8bf7a8362cbb60bd12bcdb53f3ad22bf04"
+    },
+    "cldr-region.xml": {
+      "url": "https://raw.githubusercontent.com/unicode-org/cldr/0c0d98c9d1fd2efaa2cb191a6bf2626d9d1e288b/common/validity/region.xml",
+      "bytes": 1905,
+      "sha256": "e751e0eedd46b52c38f3cdb72b0fab61ac8b48e052e8b28ba74b6ac26c4c8cb1"
+    },
+    "UNICODE-3.0.txt": {
+      "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/7d2b9cb11cec08f4d333ad73209deb3df0711c3b/LICENSE",
+      "bytes": 2033,
+      "sha256": "220ba0e1c43b99530d2d5bdb892a99dca0989414f51ab695ecd90163eaa1ec3b"
+    }
+  },
+  "resources": {
+    "countries.tsv": {
+      "bytes": 16563,
+      "sha256": "237b5f928447f6099ab8b846a30574b2c9ce2d2b7c556b0f0fca2b0a80b4e34b"
+    },
+    "places.tsv": {
+      "bytes": 2853967,
+      "sha256": "57ce54a5a0a43139135f3a8006a34679bc87188fa3ea8e9b872f7efe2432d63d"
+    },
+    "ATTRIBUTION.txt": {
+      "bytes": 2748,
+      "sha256": "158c293ccca3ecad6e1083c510973a09153352020b76f403f6a572c411597287"
+    }
+  }
+}

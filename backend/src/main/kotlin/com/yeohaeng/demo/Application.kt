@@ -25,26 +25,41 @@ fun main(args: Array<String>) { runApplication<Application>(*args) }
 @RestController
 @RequestMapping("/api/demo")
 class WorkspaceController(private val service: WorkspaceService) {
-    @GetMapping("/workspace") fun workspace() = service.read()
+    @GetMapping("/workspace") fun workspace(@RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.read(tripId)
     @GetMapping("/health") fun health() = mapOf("status" to "ok", "mode" to "local-demo")
-    @PatchMapping("/tasks/{id}") fun task(@PathVariable id: String, @RequestBody request: DoneRequest) = service.setDone(id, request.done)
+    @GetMapping("/trips") fun trips() = service.trips()
+    @PostMapping("/trips") fun createTrip(@Valid @RequestBody request: TripRequest,
+        @RequestHeader("Idempotency-Key", required = false) key: String?) = service.createTrip(request, key)
+    @PatchMapping("/trips/{id}") fun editTrip(@PathVariable id: String, @Valid @RequestBody request: TripRequest) = service.editTrip(id, request)
+    @PatchMapping("/trips/{id}/archive") fun archiveTrip(@PathVariable id: String, @RequestBody request: ArchiveRequest) = service.archiveTrip(id, request.archived)
+    @DeleteMapping("/trips/{id}") fun deleteTrip(@PathVariable id: String) = service.deleteTrip(id)
+
+    @PatchMapping("/tasks/{id}") fun task(@PathVariable id: String, @RequestBody request: DoneRequest,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.setDone(id, request.done, tripId)
     @PostMapping("/tasks") fun addTask(@Valid @RequestBody request: TaskRequest,
-        @RequestHeader("Idempotency-Key", required = false) key: String?) = service.addTask(request, key)
-    @PatchMapping("/tasks/{id}/details") fun editTask(@PathVariable id: String,
-        @Valid @RequestBody request: TaskRequest) = service.editTask(id, request)
-    @DeleteMapping("/tasks/{id}") fun deleteTask(@PathVariable id: String) = service.deleteTask(id)
-    @PatchMapping("/favorites/{id}") fun favorite(@PathVariable id: String, @RequestBody request: SavedRequest) = service.setSaved(id, request.saved)
-    @PatchMapping("/events/{id}/note") fun eventNote(@PathVariable id: String,
-        @Valid @RequestBody request: EventNoteRequest) = service.setEventNote(id, request.note)
-    @PatchMapping("/events/{id}") fun editEvent(@PathVariable id: String,
-        @Valid @RequestBody request: EventEditRequest) = service.editEvent(id, request)
-    @DeleteMapping("/events/{id}") fun deleteEvent(@PathVariable id: String) = service.deleteEvent(id)
+        @RequestHeader("Idempotency-Key", required = false) key: String?,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.addTask(request, key, tripId)
+    @PatchMapping("/tasks/{id}/details") fun editTask(@PathVariable id: String, @Valid @RequestBody request: TaskRequest,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.editTask(id, request, tripId)
+    @DeleteMapping("/tasks/{id}") fun deleteTask(@PathVariable id: String,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.deleteTask(id, tripId)
+    @PatchMapping("/favorites/{id}") fun favorite(@PathVariable id: String, @RequestBody request: SavedRequest,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.setSaved(id, request.saved, tripId)
+    @PatchMapping("/events/{id}/note") fun eventNote(@PathVariable id: String, @Valid @RequestBody request: EventNoteRequest,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.setEventNote(id, request.note, tripId)
+    @PatchMapping("/events/{id}") fun editEvent(@PathVariable id: String, @Valid @RequestBody request: EventEditRequest,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.editEvent(id, request, tripId)
+    @DeleteMapping("/events/{id}") fun deleteEvent(@PathVariable id: String,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.deleteEvent(id, tripId)
     @PostMapping("/expenses") fun expense(@Valid @RequestBody request: ExpenseRequest,
-        @RequestHeader("Idempotency-Key", required = false) key: String?) = service.addExpense(request, key)
+        @RequestHeader("Idempotency-Key", required = false) key: String?,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.addExpense(request, key, tripId)
     @PostMapping("/events") fun event(@Valid @RequestBody request: EventRequest,
-        @RequestHeader("Idempotency-Key", required = false) key: String?) = service.addEvent(request, key)
+        @RequestHeader("Idempotency-Key", required = false) key: String?,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.addEvent(request, key, tripId)
     @PostMapping("/journals") fun journal(@Valid @RequestBody request: JournalRequest,
-        @RequestHeader("Idempotency-Key", required = false) key: String?) = service.addJournal(request, key)
+        @RequestHeader("Idempotency-Key", required = false) key: String?,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.addJournal(request, key, tripId)
 }
 
 data class ApiError(val code: String, val message: String)

@@ -25,7 +25,7 @@ import kotlin.time.Duration.Companion.hours
     val remaining=data.tasks.size-completed
     val firstDay=data.events.filter{it.date==data.trip.startDate}.sortedBy{it.startTime}.take(3)
     val spent=data.expenses.sumOf{it.amountKrw}
-    // The current Osaka itinerary uses JST (UTC+9), including its departure countdown.
+    // Departure countdown follows the app's Korean date convention (UTC+9).
     val today=(Clock.System.now()+9.hours).toString().take(10)
     val departureDays=runCatching {
         (Instant.parse(data.trip.startDate+"T00:00:00Z")-Instant.parse(today+"T00:00:00Z")).inWholeDays
@@ -51,7 +51,17 @@ import kotlin.time.Duration.Companion.hours
                             Text("${duration}박 ${duration+1}일 · ${data.trip.travelers}명",fontSize=14.sp,color=Color(0xFFD0D5C9))
                             Text("일정 ${data.events.size}개",fontSize=14.sp,color=Color(0xFFD0D5C9))
                         }
-                        Image(painterResource(Res.drawable.osaka),"오사카성",Modifier.width(104.dp).height(132.dp).clip(RoundedCornerShape(20.dp)),contentScale=ContentScale.Crop)
+                        if(canonicalDestinationCity(data.trip.destination)=="오사카") {
+                            Image(painterResource(Res.drawable.osaka),"오사카성",Modifier.width(104.dp).height(132.dp).clip(RoundedCornerShape(20.dp)),contentScale=ContentScale.Crop)
+                        } else {
+                            Surface(Modifier.width(104.dp).height(132.dp),color=Signal,contentColor=SignalInk,shape=RoundedCornerShape(20.dp)) {
+                                Column(Modifier.padding(12.dp),horizontalAlignment=Alignment.CenterHorizontally,verticalArrangement=Arrangement.Center) {
+                                    Icon(Icons.Outlined.TravelExplore,null,Modifier.size(42.dp))
+                                    Spacer(Modifier.height(12.dp))
+                                    Text(data.trip.destination,fontSize=14.sp,fontWeight=FontWeight.Bold)
+                                }
+                            }
+                        }
                     }
                     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                         Box(Modifier.weight(1f)) {
@@ -88,9 +98,11 @@ import kotlin.time.Duration.Companion.hours
                     Icon(Icons.Outlined.ArrowOutward,null,Modifier.size(22.dp))
                 }
                 Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(12.dp)) {
-                    Column(Modifier.weight(1f)){Text("ICN",fontSize=29.sp,fontWeight=FontWeight.ExtraBold);Text("인천",fontSize=14.sp)}
-                    Icon(Icons.Outlined.FlightTakeoff,null,Modifier.size(28.dp))
-                    Column(Modifier.weight(1f),horizontalAlignment=Alignment.End){Text("KIX",fontSize=29.sp,fontWeight=FontWeight.ExtraBold);Text("오사카 · 간사이",fontSize=14.sp)}
+                    Icon(Icons.Outlined.FlightTakeoff,null,Modifier.size(32.dp))
+                    Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(5.dp)) {
+                        Text(data.trip.destination,fontSize=29.sp,fontWeight=FontWeight.ExtraBold)
+                        Text("여행에 맞는 항공편 검색",fontSize=14.sp)
+                    }
                 }
                 Text("${shortDate(data.trip.startDate)} 출발 · ${shortDate(data.trip.endDate)} 귀국",fontSize=14.sp)
             }

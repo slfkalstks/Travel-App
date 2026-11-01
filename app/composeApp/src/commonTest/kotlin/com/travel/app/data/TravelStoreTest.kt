@@ -25,7 +25,14 @@ class TravelStoreTest {
     private fun TestScope.client(handler: MockRequestHandler) = HttpClient(MockEngine) {
         engine {
             dispatcher = StandardTestDispatcher(testScheduler)
-            addHandler(handler)
+            addHandler { request ->
+                if (request.method == HttpMethod.Get && request.url.encodedPath == "/api/demo/trips") {
+                    respond(Json.encodeToString(listOf(original.trip)), HttpStatusCode.OK, jsonHeaders)
+                } else {
+                    assertEquals(original.trip.id, request.headers["X-Trip-Id"])
+                    handler(request)
+                }
+            }
         }
         install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
     }
