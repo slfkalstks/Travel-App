@@ -2,7 +2,7 @@ package com.travel.app.data
 
 import kotlinx.serialization.Serializable
 
-@Serializable data class Workspace(val trip: Trip, val events: List<TravelEvent> = emptyList(), val tasks: List<TravelTask> = emptyList(), val expenses: List<Expense> = emptyList(), val reservations: List<Reservation> = emptyList(), val favorites: List<Favorite> = emptyList(), val journals: List<Journal> = emptyList())
+@Serializable data class Workspace(val trip: Trip, val events: List<TravelEvent> = emptyList(), val tasks: List<TravelTask> = emptyList(), val expenses: List<Expense> = emptyList(), val reservations: List<Reservation> = emptyList(), val favorites: List<Favorite> = emptyList(), val journals: List<Journal> = emptyList(), val documents: List<DocumentRecord> = emptyList())
 @Serializable data class Trip(val id: String, val title: String, val destination: String, val country: String, val startDate: String, val endDate: String, val travelers: Int, val budgetKrw: Long, val coverImage: String = "", val archived: Boolean = false)
 @Serializable data class TravelEvent(val id: String, val date: String, val startTime: String, val endTime: String, val title: String, val category: String, val location: String, val note: String = "", val costKrw: Long = 0, val latitude: Double? = null, val longitude: Double? = null)
 @Serializable data class TravelTask(val id: String, val title: String, val category: String, val done: Boolean)

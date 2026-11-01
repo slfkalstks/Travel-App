@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:travel-app:document-update",
+  "title": "DocumentUpdateInput",
+  "description": "Full metadata edit. Both String fields are required; content, identity, digest, size and creation instant cannot be edited.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name, trimmed before persistence; nonblank, at most 200 characters. No path separators, C0/C1 controls, line/paragraph separators, or dot-only path components. It is never a filesystem path.",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^(?=[\\s\\S]*\\S)(?!(?:\\.{1,2})(?![\\s\\S]))[^/\\\\\\u0000-\\u001f\\u007f-\\u009f\\u2028\\u2029]+(?![\\s\\S])"
+    },
+    "reservationId": {
+      "type": "string",
+      "description": "Opaque ID of an existing reservation in the same trip, or empty to leave the document unlinked. A reservation deleted later unlinks documents without deleting their bytes.",
+      "maxLength": 200,
+      "pattern": "^[^/\\\\\\u0000-\\u001f\\u007f-\\u009f\\u2028\\u2029]*(?![\\s\\S])"
+    }
+  },
+  "required": ["name", "reservationId"]
+}

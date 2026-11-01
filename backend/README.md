@@ -51,6 +51,10 @@ Windows PowerShell에서는 JDK 21의 `JAVA_HOME`을 설정한 뒤 `backend` 폴
 | POST | `/api/demo/reservations` | `{"type":"activity","title":"전시 관람","date":"2026-11-13"}`; 공통 20필드 계약은 아래 문서 참고 |
 | PATCH | `/api/demo/reservations/{id}` | 생성과 같은 공통 요청, 전체 편집값 교체 |
 | DELETE | `/api/demo/reservations/{id}` | 없음, 앱의 직접 기록만 삭제 |
+| POST | `/api/demo/documents` | multipart `file`, `name`, `reservationId`; Workspace 응답 |
+| GET | `/api/demo/documents/{id}/content` | 없음; 해당 여행의 원본 바이너리 응답 |
+| PATCH | `/api/demo/documents/{id}` | `{"name":"숙소 확인서","reservationId":""}`; 두 문자열 필수 |
+| DELETE | `/api/demo/documents/{id}` | 없음; metadata·서버 파일 삭제 후 Workspace 응답 |
 | POST | `/api/demo/expenses` | `{"title":"커피","category":"food","amountKrw":7500,"date":"2026-11-13","method":"카드"}` |
 | POST | `/api/demo/events` | `{"date":"2026-11-13","startTime":"10:00","endTime":"11:00","title":"산책","category":"place","location":"난바","note":"","costKrw":0}` |
 | POST | `/api/demo/journals` | `{"date":"2026-11-13","title":"오늘의 순간","body":"가을 골목을 걸었다.","mood":"행복"}` |
@@ -59,7 +63,7 @@ Windows PowerShell에서는 JDK 21의 `JAVA_HOME`을 설정한 뒤 `backend` 폴
 
 `GET /workspace`와 일정·준비물·지출·예약·장소·기록의 모든 변경 요청에는 선택한 여행의 `X-Trip-Id` 헤더를 전달합니다. 선택은 요청마다 독립적이며 서버 전역 활성 여행을 바꾸지 않습니다. 없는 ID 또는 빈 헤더는 404입니다. 헤더를 생략한 기존 클라이언트는 초기 오사카 여행이 있으면 그 여행, 없으면 저장 순서의 첫 여행을 사용합니다. 여행이 하나도 없으면 workspace는 404, 목록은 `[]`입니다. 여행 DELETE는 하위 데이터도 함께 제거하며 없는 ID를 재삭제해도 200과 현재 목록을 반환합니다. 마지막 여행 삭제 후 재시작해도 초기 데이터를 다시 만들지 않습니다.
 
-Workspace 키는 `trip`, `events`, `tasks`, `expenses`, `reservations`, `favorites`, `journals`입니다. 모델 원본은 `Models.kt`, 전체 예시는 `src/main/resources/seed-workspace.json`입니다. 누락될 수 있는 문자열은 빈 문자열로, 목록은 배열로 응답합니다. 알 수 없는 필드·필수 값 누락·잘못된 범주·잘못된 날짜는 400, 알 수 없는 ID는 404입니다. 오류 형식은 `{"code":"INVALID_INPUT","message":"…"}`입니다.
+Workspace 키는 `trip`, `events`, `tasks`, `expenses`, `reservations`, `favorites`, `journals`, `documents`입니다. 모델 원본은 `Models.kt`, 전체 예시는 `src/main/resources/seed-workspace.json`입니다. 누락될 수 있는 문자열은 빈 문자열로, 목록은 배열로 응답합니다. 알 수 없는 필드·필수 값 누락·잘못된 범주·잘못된 날짜는 400, 알 수 없는 ID는 404입니다. 오류 형식은 `{"code":"INVALID_INPUT","message":"…"}`입니다.
 
 일정 메모 PATCH는 해당 일정의 `note`만 변경하고 전체 workspace를 반환합니다. 최대 2,000자를 허용하며 빈 문자열 `{"note":""}`로 메모를 지웁니다. 줄바꿈과 공백은 그대로 저장합니다. 필드 누락·null·길이 초과는 400, 존재하지 않는 일정은 404이며, 실패한 요청은 기존 데이터를 변경하지 않습니다. 같은 내용을 다시 보내도 결과가 같으므로 별도 멱등성 키 없이 재시도할 수 있습니다.
 
@@ -99,6 +103,20 @@ iPhone 실기기의 `127.0.0.1`은 개발 Mac이 아니라 iPhone 자신입니�
 
 ## 검증
 
-테스트는 임시 파일 저장소와 실제 Spring MVC를 사용합니다. 파일 재로딩으로 재시작 후 저장 유지, PATCH 멱등성, 음수·소수 지출 거부, 잘못된 날짜·여행 기간·시간 범위·분류 거부, 존재하지 않는 ID, 필수 필드 누락, 외부 Origin 차단, 일정·기록·장소 저장 변경, POST 재시도 중복 방지·키 충돌·재시작 후 영수증 유지·기존 저장 파일 이전·여행 전후 기록 날짜, 일정 메모 수정·비우기·재로딩·길이 제한·실패 시 원본 유지, 일정 전체 수정의 숨은 필드 보존, 준비물 생성·상세 수정·완료 상태 보존, 삭제 재시도와 삭제 후 생성 요청 재시도 안전성을 검증합니다. 다중 여행 생성·수정·보관·삭제, 모든 하위 요청의 여행 간 격리, 여행별 멱등성 키, 생성 키의 재시작 유지와 삭제 후 재생성 방지, 기간 축소 시 데이터 보호, 마지막 여행 삭제 후 빈 상태 유지, schema 1 원본 바이트 백업·데이터와 영수증 이전, 손상·미지원 저장 파일의 덮어쓰기 방지도 검증합니다. 예약 CRUD·여행별 격리·재시작 후 영수증·삭제 재시도·원래 ID와 출처 유지, 20개 필드의 문자열 타입과 추가 필드 거부, 시간 미정과 자정 구분, 시작·종료·취소마감의 DST gap/overlap, 정규 오프셋 저장, 날짜 변경선을 지나는 실제 시각 순서, 여행 기간 밖 예약 보존, 이전 8필드 예약의 기본값과 원본 백업도 검증합니다. **2026-11-01 기준 통합 테스트 46개(기존 33개와 예약 13개) 모두 통과**했으며 `test bootJar` 빌드도 성공했습니다. 실제 예약 제공사 연동은 없습니다.
+테스트는 임시 파일 저장소와 실제 Spring MVC를 사용합니다. 파일 재로딩으로 재시작 후 저장 유지, PATCH 멱등성, 음수·소수 지출 거부, 잘못된 날짜·여행 기간·시간 범위·분류 거부, 존재하지 않는 ID, 필수 필드 누락, 외부 Origin 차단, 일정·기록·장소 저장 변경, POST 재시도 중복 방지·키 충돌·재시작 후 영수증 유지·기존 저장 파일 이전·여행 전후 기록 날짜, 일정 메모 수정·비우기·재로딩·길이 제한·실패 시 원본 유지, 일정 전체 수정의 숨은 필드 보존, 준비물 생성·상세 수정·완료 상태 보존, 삭제 재시도와 삭제 후 생성 요청 재시도 안전성을 검증합니다. 다중 여행 생성·수정·보관·삭제, 모든 하위 요청의 여행 간 격리, 여행별 멱등성 키, 생성 키의 재시작 유지와 삭제 후 재생성 방지, 기간 축소 시 데이터 보호, 마지막 여행 삭제 후 빈 상태 유지, schema 1 원본 바이트 백업·데이터와 영수증 이전, 손상·미지원 저장 파일의 덮어쓰기 방지도 검증합니다. 예약 CRUD·여행별 격리·재시작 후 영수증·삭제 재시도·원래 ID와 출처 유지, 20개 필드의 문자열 타입과 추가 필드 거부, 시간 미정과 자정 구분, 시작·종료·취소마감의 DST gap/overlap, 정규 오프셋 저장, 날짜 변경선을 지나는 실제 시각 순서, 여행 기간 밖 예약 보존, 이전 8필드 예약의 기본값과 원본 백업도 검증합니다. **2026-11-01 기준 통합 테스트 63개(기존 33개·예약 13개·문서 17개) 모두 통과**했으며 `test bootJar` 빌드도 성공했습니다. 실제 예약 제공사 연동은 없습니다.
 
 기술 호환성 확인: [Spring Boot 3.5 공식 시스템 요구 사항](https://docs.spring.io/spring-boot/3.5/system-requirements.html). 이 데모는 기존 환경과의 연속성을 위해 3.5 계열을 선택했으며 최신 메이저라는 의미는 아닙니다.
+
+## 여행 문서 보관
+
+문서 계약과 JSON Schema는 [여행 문서 HTTP 계약](../docs/DOCUMENTS_API.md)을 따릅니다. PDF·JPEG·PNG만 받고, 파일 1~20MiB·multipart 요청 21MiB 한도를 적용합니다. 앱은 전송 filename을 `document.pdf`·`document.jpg`·`document.png`로 정규화하고 표시 이름을 별도 `name` 파트로 보냅니다. 서버는 일반적인 안전한 확장자 이름도 허용하지만 이름·MIME·내용 표식이 일치해야 하며 경로 구분자·제어문자는 거절합니다. bytes는 실행하거나 정적 공개 경로에 두지 않습니다. 형식 표식 확인은 문서 전체 파싱·악성코드 검사나 정상 렌더링 보장이 아닙니다.
+
+파일 저장소 기본값은 `TRAVEL_DATA_FILE` 부모의 `documents/`입니다. `TRAVEL_DOCUMENT_ROOT`로 별도 경로를 지정할 수 있으며 부모 디렉터리는 존재해야 합니다. 루트 자체의 심볼릭 링크는 거절하고 UUID 단일 파일 이름으로 저장합니다. 새 디렉터리 권한은 POSIX에서 700, 파일은 600입니다. 표시 이름·전송 filename·provider 경로는 저장 경로로 사용하지 않습니다. 백업할 때 JSON metadata와 해당 문서 저장소를 함께 보관하세요.
+
+파일은 임시 파일에 스트리밍하면서 SHA-256·정확한 크기를 계산하고 원자 rename한 뒤 Workspace metadata·멱등 영수증을 함께 commit합니다. metadata 실패 시 해당 호출의 신규 blob만 정리합니다. 같은 키 재시도는 현재 Workspace를 반환하므로 삭제한 문서를 되살리지 않으며, bytes·표시 이름·연결 등 fingerprint가 다르면409입니다. metadata 수정은 `name`·`reservationId`만 허용하고 원본·해시·크기·생성 시각은 보존합니다. 예약 삭제는 연결만 해제하고 파일은 유지합니다. 문서·여행 삭제는 metadata commit 이후 해당 UUID blob만 정리하며 파일 정리 실패는 deferred 로그를 남기고 다음 문서/여행 DELETE 재시도 또는 서버 시작 시 모든 여행의 live ID를 확인해 참조 없는 UUID 일반 파일만 다시 정리합니다. 서버 시작 시에는 `.upload-숫자.tmp` 일반 파일도 정리하고, 실행 중에는 업로드 임시 파일을 건드리지 않습니다. symlink·디렉터리·임의 이름은 정리 대상에서 제외합니다. 선택한 사용자 원본 파일은 서버가 변경하지 않습니다.
+
+다운로드는 `X-Trip-Id`로 범위를 확인하고 원본 MIME·길이·UTF-8 attachment 이름을 반환합니다. 다른 여행 문서 GET/PATCH는404, 다른 여행 문서 DELETE는 상대 여행에 영향을 주지 않는 현재 여행의 멱등 삭제입니다. root·blob 심볼릭 링크, 누락·길이가 맞지 않는 파일은 열지 않습니다. 앱은 bytes 크기·SHA를 검증한 뒤 앱 전용 캐시와 네이티브 열기/공유를 사용합니다.
+
+문서 통합 테스트 17개는 지원 형식 업로드·원본 bytes/MIME/길이/SHA, 실제 HTTP multipart 업로드·다운로드, 실제 multipart 파일20MiB+1·요청22MiB의 JSON413, trip scope, metadata 편집·예약 삭제 연결 해제, Spring 주입 경로의 여행 삭제 파일 정리, 지연·동시·재시작 멱등 재시도, metadata commit 실패 시 기존 파일 보존·신규 blob 정리, root/leaf 심볼릭 링크 차단, 이전 자료·원본 백업·영수증 보존을 검사합니다. Tomcat 거절 본문 drain은 32MB로 제한하며 이 상한보다 큰 본문은 HTTP 연결 종료로 클라이언트가 네트워크 오류를 받을 수 있습니다. 이 설정은 파일20MiB·전체요청21MiB 한도를 늘리지 않습니다.
+
+정리 회귀 테스트는 디렉터리 권한으로 실제 파일 삭제 I/O 실패를 재현한 뒤 반복 DELETE와 저장소 재로딩 후 새 서비스 시작에서 orphan·임시 파일이 정리되는지 확인합니다. 다른 여행의 live 파일·임의 파일·잘못된 이전 ID·디렉터리·symlink 외부 원본과 metadata bytes는 보존합니다.

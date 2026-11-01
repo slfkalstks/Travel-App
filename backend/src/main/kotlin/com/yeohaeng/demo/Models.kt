@@ -22,7 +22,7 @@ data class Favorite(val id: String, val title: String, val category: String, val
 data class Journal(val id: String, val date: String, val title: String, val body: String, val mood: String)
 data class Workspace(val trip: Trip, val events: List<TravelEvent>, val tasks: List<Task>,
     val expenses: List<Expense>, val reservations: List<Reservation>, val favorites: List<Favorite>,
-    val journals: List<Journal>)
+    val journals: List<Journal>, val documents: List<DocumentRecord> = emptyList())
 
 data class TripRequest(
     @field:NotBlank @field:Size(max=120) val title: String,

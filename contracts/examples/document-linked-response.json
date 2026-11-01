@@ -1,0 +1,9 @@
+{
+  "id": "0d6e9850-89e5-4901-9f9b-877c8f734809",
+  "name": "숙소 확인 이미지",
+  "mediaType": "image/png",
+  "sizeBytes": 1024,
+  "sha256": "5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+  "createdAt": "2026-11-01T01:00:00.123456789Z",
+  "reservationId": "r-stay-example"
+}

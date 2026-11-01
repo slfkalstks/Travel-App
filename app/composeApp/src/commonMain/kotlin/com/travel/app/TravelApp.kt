@@ -13,7 +13,10 @@ import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.*
-import com.travel.app.platform.HandleBack
+import com.travel.app.platform.*
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.CancellationException
+import kotlin.random.Random
 import androidx.compose.ui.*
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -25,19 +28,66 @@ import kotlinx.coroutines.delay
 @Composable fun TravelApp() {
     val scope=rememberCoroutineScope()
     var selectedTripId by rememberSaveable{mutableStateOf<String?>(null)}
-    val store=remember{TravelStore(scope,initialTripId=selectedTripId)}
+    val localFiles=remember{createLocalFiles()}
+    val store=remember{TravelStore(scope,initialTripId=selectedTripId,cache=TravelCache(localFiles))}
+    val documentCache=remember{DocumentCache(scope,localFiles)}
+    val documentState by documentCache.state.collectAsState()
     val state by store.state.collectAsState()
     var page by rememberSaveable{mutableIntStateOf(0)}
     var tripTab by rememberSaveable{mutableIntStateOf(0)}
     var editor by rememberSaveable{mutableStateOf<String?>(null)}
+    var documentListRoute by rememberSaveable{mutableStateOf("documents|")}
+    var documentParentRoute by rememberSaveable{mutableStateOf<String?>(null)}
+    var pickedDocument by remember{mutableStateOf<PickedDocument?>(null)}
+    var pickedTripId by rememberSaveable{mutableStateOf<String?>(null)}
+    var pickedReservationId by rememberSaveable{mutableStateOf("")}
+    var uploadOperationId by rememberSaveable{mutableStateOf("")}
+    var documentActionBusy by remember{mutableStateOf(false)}
+    val documentBusy=state.loading||state.saving||documentState.busy||documentActionBusy
+    val openDocument=rememberDocumentOpener(documentCache::reportError)
+    val pickDocument=rememberDocumentPicker(onPicked={ picked ->
+        if(pickedTripId==store.state.value.workspace?.trip?.id) {
+            pickedDocument=picked
+            uploadOperationId=Random.nextBytes(16).joinToString(""){(it.toInt() and 255).toString(16).padStart(2,'0')}
+            editor="document-upload|$uploadOperationId"
+        } else documentCache.reportError("여행이 바뀌었어요. 파일을 다시 선택해 주세요.")
+    },onError=documentCache::reportError)
+    val addDocument={
+        pickedTripId=state.workspace?.trip?.id
+        pickedReservationId=documentListRoute.substringAfter('|',"")
+        documentCache.clearError();pickDocument()
+    }
+    fun openDocuments(reservationId:String="",parent:String?=null) {
+        documentParentRoute=parent;documentListRoute="documents|$reservationId"
+        documentCache.clearError();editor=documentListRoute
+    }
     var dark by rememberSaveable{mutableStateOf(false)}
     var reduced by rememberSaveable{mutableStateOf(false)}
     var previousPage by rememberSaveable{mutableIntStateOf(0)}
     val pages=rememberSaveableStateHolder()
     HandleBack(page>=4&&editor==null){page=if(page==4)previousPage else 0}
-    LaunchedEffect(Unit){store.refresh()}
+    LaunchedEffect(Unit){
+        try { documentCache.initialize() }
+        catch(e:CancellationException){throw e}
+        catch(_:Exception){documentCache.reportError("기기에 보관한 파일 목록을 복구하지 못했어요. 저장 공간을 확인해 주세요.")}
+        store.refresh()
+    }
     LaunchedEffect(state.workspace?.trip?.id,state.loading){if(!state.loading)selectedTripId=state.workspace?.trip?.id}
-    DisposableEffect(Unit){onDispose{store.close()}}
+    DisposableEffect(Unit){onDispose{store.close();documentCache.close()}}
+    LaunchedEffect(state.workspace?.trip?.id,state.workspace?.documents,state.offline,state.loading) {
+        state.workspace?.let { workspace ->
+            try { documentCache.reconcile(workspace,!state.offline&&!state.loading) }
+            catch(e:CancellationException){throw e}
+            catch(_:Exception){documentCache.reportError("기기에 보관한 파일을 확인하지 못했어요. 저장 공간을 확인해 주세요.")}
+        }
+    }
+    LaunchedEffect(state.trips,state.offline,state.loading) {
+        if(!state.offline&&!state.loading) {
+            try { documentCache.retainTrips(state.trips.map{it.id}.toSet()) }
+            catch(e:CancellationException){throw e}
+            catch(_:Exception){documentCache.reportError("삭제된 여행의 기기 사본을 정리하지 못했어요. 저장 공간을 확인해 주세요.")}
+        }
+    }
     LaunchedEffect(state.message){if(state.message!=null){delay(2500);store.clearMessage()}}
     TravelTheme(dark,reduced) {
         Surface(Modifier.fillMaxSize(),color=Canvas) {
@@ -81,7 +131,7 @@ import kotlinx.coroutines.delay
                                 1->FlightScreen(data)
                                 2->ExploreScreen(data,state.loading||state.saving,store::toggleFavorite)
                                 3->JournalScreen(data){editor="journal"}
-                                else->TripScreen(data,tripTab,{tripTab=it},state.loading||state.saving,store::toggleTask,{editor=it},{page=1})
+                                else->TripScreen(data,tripTab,{tripTab=it},state.loading||state.saving,store::toggleTask,{if(it.startsWith("documents|"))openDocuments() else editor=it},{page=1})
                             } }
                         }
                     }
@@ -106,8 +156,65 @@ import kotlinx.coroutines.delay
             }
             if(showEditor) {
                 val dismiss={ if(!store.state.value.saving){editor=null;store.clearError()} }
-                if(editor!!.startsWith("trip-")) TripEditorScreen(editor!!,state,store,dismiss)
-                else if(editor!!.startsWith("reservation-detail|")) ReservationDetailScreen(editor!!.substringAfter('|'),state,store,onEdit={store.clearError();editor=it},onDismiss=dismiss)
+                if(editor!!.startsWith("documents|")) {
+                    val workspace=state.workspace!!
+                    pages.SaveableStateProvider("${workspace.trip.id}:${editor!!}") {
+                        DocumentsScreen(workspace.documents,workspace.reservations,documentState.statuses,documentBusy,
+                            documentState.error?:state.error,state.offline,addDocument,
+                            onOpen={doc->documentCache.open(workspace.trip.id,doc,state.offline){key->openDocument(key,doc.name,doc.mediaType)}},
+                            onDetail={editor="document-detail|$it"},
+                            onDismiss={if(!documentBusy){editor=documentParentRoute;store.clearError();documentCache.clearError()}},
+                            initialReservationId=editor!!.substringAfter('|',""))
+                    }
+                } else if(editor!!.startsWith("document-upload|")) {
+                    val picked=pickedDocument
+                    if(picked==null) {
+                        Surface(Modifier.fillMaxSize(),color=Canvas) { Column(Modifier.systemBarsPadding().padding(24.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+                            Text("파일을 다시 선택해 주세요",fontSize=22.sp,fontWeight=FontWeight.Bold)
+                            Text("아직 업로드하지 않은 파일은 앱을 다시 열면 선택이 필요해요.",color=TextSecondary)
+                            ActionButton("서류로 돌아가기",{editor=documentListRoute})
+                        } }
+                    } else key(uploadOperationId) {
+                        DocumentUploadScreen(picked.name,picked.mediaType,picked.bytes.size.toLong(),state.workspace!!.reservations,pickedReservationId,
+                            documentBusy,documentState.error?:state.error,
+                            onSave={name,reservationId->
+                                documentCache.clearError()
+                                store.uploadDocument(picked,name,reservationId,uploadOperationId) {
+                                    val workspace=store.state.value.workspace!!
+                                    documentActionBusy=true
+                                    scope.launch {
+                                        try {
+                                            val digest=documentSha256(picked.bytes)
+                                            val record=workspace.documents.lastOrNull{it.name==name.trim()&&it.reservationId==reservationId&&it.sha256==digest}
+                                                ?: error("저장한 파일을 다시 불러와 주세요.")
+                                            documentCache.rememberUpload(workspace.trip.id,record,picked.bytes)
+                                        } catch(e:CancellationException){throw e}
+                                        catch(_:Exception){documentCache.reportError("서버에는 저장했지만 기기에 보관하지 못했어요. 파일을 다시 내려받아 주세요.")}
+                                        finally{documentActionBusy=false;pickedDocument=null;editor=documentListRoute}
+                                    }
+                                }
+                            },onDismiss={if(!documentBusy){pickedDocument=null;editor=documentListRoute;store.clearError();documentCache.clearError()}})
+                    }
+                } else if(editor!!.startsWith("document-detail|")) {
+                    val workspace=state.workspace!!
+                    val document=workspace.documents.firstOrNull{it.id==editor!!.substringAfter('|')}
+                    DocumentDetailScreen(document,workspace.reservations,documentState.statuses[document?.id]?:DocumentCacheStatus.NOT_DOWNLOADED,
+                        documentBusy,documentState.error?:state.error,state.offline,
+                        onOpen={document?.let{doc->documentCache.open(workspace.trip.id,doc,state.offline){key->openDocument(key,doc.name,doc.mediaType)}}},
+                        onDownload={document?.let{documentCache.download(workspace.trip.id,it)}},
+                        onUpdate={name,reservationId->documentCache.clearError();document?.let{store.updateDocument(it.id,name,reservationId){editor=documentListRoute}}},
+                        onDelete={documentCache.clearError();document?.let{doc->store.deleteDocument(doc.id){
+                            documentActionBusy=true
+                            scope.launch {
+                                try{documentCache.remove(workspace.trip.id,doc)}
+                                catch(e:CancellationException){throw e}
+                                catch(_:Exception){documentCache.reportError("서버 파일은 삭제했지만 기기의 사본을 지우지 못했어요. 저장 공간을 확인해 주세요.")}
+                                finally{documentActionBusy=false;editor=documentListRoute}
+                            }
+                        }}},onDismiss={if(!documentBusy){editor=documentListRoute;store.clearError();documentCache.clearError()}})
+                } else if(editor!!.startsWith("trip-")) TripEditorScreen(editor!!,state,store,dismiss)
+                else if(editor!!.startsWith("reservation-detail|")) ReservationDetailScreen(editor!!.substringAfter('|'),state,store,onEdit={store.clearError();editor=it},onDismiss=dismiss,
+                    onDocuments={id->openDocuments(id,"reservation-detail|$id")})
                 else if(editor!!.startsWith("reservation-")) ReservationEditorScreen(editor!!,state,store,dismiss)
                 else if(editor!!.startsWith("event-detail|")) EventDetailScreen(editor!!.substringAfter('|'),state,store,onEdit={store.clearError();editor=it},onDismiss=dismiss)
                 else if(editor!!.startsWith("task-")) TaskEditorScreen(editor!!,state,store,dismiss)

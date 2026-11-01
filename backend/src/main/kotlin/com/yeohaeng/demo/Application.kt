@@ -73,6 +73,10 @@ data class ApiError(val code: String, val message: String)
 @RestControllerAdvice
 class ApiErrors {
     private val logger = LoggerFactory.getLogger(javaClass)
+    @ExceptionHandler(DocumentTooLarge::class, org.springframework.web.multipart.MaxUploadSizeExceededException::class)
+    fun oversized() = ResponseEntity.status(413).body(ApiError("FILE_TOO_LARGE", "파일은 20MB까지 올릴 수 있어요."))
+    @ExceptionHandler(org.springframework.web.multipart.MultipartException::class)
+    fun malformedMultipart() = ResponseEntity.badRequest().body(ApiError("INVALID_INPUT", "파일과 문서 이름을 확인해 주세요."))
     @ExceptionHandler(IdempotencyConflict::class)
     fun conflict(ex: IdempotencyConflict) = ResponseEntity.status(409).body(ApiError("IDEMPOTENCY_CONFLICT", ex.message!!))
     @ExceptionHandler(MissingItem::class)

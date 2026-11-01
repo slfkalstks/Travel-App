@@ -8,6 +8,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.AttachFile
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,7 +22,7 @@ import com.travel.app.data.*
 import com.travel.app.platform.HandleBack
 
 @Composable
-fun ReservationDetailScreen(id: String, state: TravelState, store: TravelStore, onEdit: (String) -> Unit, onDismiss: () -> Unit) {
+fun ReservationDetailScreen(id: String, state: TravelState, store: TravelStore, onEdit: (String) -> Unit, onDismiss: () -> Unit, onDocuments: (reservationId: String) -> Unit = {}) {
     var deletePrompt by rememberSaveable(id) { mutableStateOf(false) }
     val busy = state.loading || state.saving
     HandleBack(true) { if (!busy) { if (deletePrompt) deletePrompt = false else onDismiss() } }
@@ -71,6 +73,23 @@ fun ReservationDetailScreen(id: String, state: TravelState, store: TravelStore, 
                     }
                 }
                 if (reservation.detail.isNotBlank()) ReservationDetailField("메모", reservation.detail)
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("첨부 서류", fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                    val attachmentCount = state.workspace?.documents.orEmpty().count { it.reservationId == id }
+                    Group {
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            Icon(Icons.Outlined.AttachFile, null, Modifier.size(22.dp), tint = TextSecondary)
+                            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                                Text(if (attachmentCount == 0) "연결된 서류가 없어요" else "연결된 서류 ${attachmentCount}개", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                                Text("예약 확인서와 티켓을 모아 보세요", fontSize = 13.sp, color = TextSecondary)
+                            }
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        TextButton(onClick = { onDocuments(id) }, enabled = !busy, modifier = Modifier.heightIn(min = 48.dp)) {
+                            Text("서류 보기·추가"); Spacer(Modifier.width(6.dp)); Icon(Icons.Outlined.ChevronRight, null, Modifier.size(18.dp))
+                        }
+                    }
+                }
                 if (reservation.cancellationDeadline.isNotBlank() || reservation.cancellationPolicy.isNotBlank()) {
                     Line()
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {

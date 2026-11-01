@@ -13,7 +13,7 @@ import java.util.UUID
 class MissingItem : RuntimeException("항목을 찾을 수 없어요.")
 
 @Service
-class WorkspaceService(private val repository: WorkspaceRepository) {
+class WorkspaceService(private val repository: WorkspaceRepository, private val documents: DocumentService? = null) {
     fun read(tripId: String? = null) = repository.read(tripId)
     fun setDone(id: String, done: Boolean, tripId: String? = null) = repository.update(tripId = tripId) { state ->
         if (state.tasks.none { it.id == id }) throw MissingItem()
@@ -57,7 +57,8 @@ class WorkspaceService(private val repository: WorkspaceRepository) {
         state.copy(reservations = state.reservations.map { if (it.id == id) edited else it })
     }
     fun deleteReservation(id: String, tripId: String? = null) = repository.update(tripId = tripId) { state ->
-        state.copy(reservations = state.reservations.filterNot { it.id == id })
+        state.copy(reservations = state.reservations.filterNot { it.id == id },
+            documents = state.documents.map { if (it.reservationId == id) it.copy(reservationId = "") else it })
     }
     fun addExpense(request: ExpenseRequest, key: String? = null, tripId: String? = null) = repository.update(key, "POST /expenses", request, tripId) { state ->
         val date = validDate(request.date)
@@ -94,7 +95,7 @@ class WorkspaceService(private val repository: WorkspaceRepository) {
             startDate = request.startDate, endDate = request.endDate, travelers = request.travelers, budgetKrw = request.budgetKrw))
     }
     fun archiveTrip(id: String, archived: Boolean) = repository.update(tripId = id) { it.copy(trip = it.trip.copy(archived = archived)) }
-    fun deleteTrip(id: String) = repository.deleteTrip(id)
+    fun deleteTrip(id: String) = documents?.deleteTrip(id) ?: repository.deleteTrip(id)
     private fun validateTripPeriod(request: TripRequest) {
         val start = validDate(request.startDate)
         val end = validDate(request.endDate)

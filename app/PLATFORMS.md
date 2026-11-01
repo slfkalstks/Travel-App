@@ -49,13 +49,16 @@ Xcode 빌드 스크립트가 `:composeApp:embedAndSignAppleFrameworkForXcode`를
 
 ## 검증 결과 (2026-11-01)
 
-- Android: 최종 UI 전면 수정 후 `:androidApp:assembleDebug` 성공(7초), API 35 에뮬레이터에 재설치·실행 확인. APK는 `../releases/yeojeong-android-debug.apk`에 저장하며 저장소에서는 제외합니다.
-- iOS: `:composeApp:linkDebugFrameworkIosSimulatorArm64` 성공. 최종 모바일 수정 후 Xcode 26.6의 Debug iPhone simulator 앱 빌드 성공, iPhone 16 Pro / iOS 18.2 시뮬레이터 재설치·실행 확인. Bundle ID는 `com.travel.app`입니다.
-- 공통 상태 관리 12개 + 다중 여행 상태 9개 + 목적지 검색 4개 + 예약 상태 4개 + 현지 시각 5개 + 외부 URL 4개 + JVM 전체 시간대 전환 비교 1개: 총 39개 통과 (내부 JVM 테스트 러너).
-- 예약 CRUD 추가 후 Android·iOS를 다시 빌드·설치했다. 실제 iOS에서 예약 생성·이름/현지 시각 수정·시간대 검색·재실행 후 유지를 확인했다. Android 새 예약 UI 조작은 아직 검증하지 않았다.
-- Android 시스템 뒤로가기: 설정 화면에서 시스템 Back을 눌렀을 때 홈이 복원되고 앱이 전면에 남는 것을 접근성 트리로 확인했습니다.
-- 항공권 연결: Google 항공편의 왕복·편도 주소가 공항·날짜를 반영하는 것을 실제 브라우저로 확인했습니다. 자세한 근거는 `../docs/FLIGHT_SEARCH_INTEGRATION.md`에 있습니다.
-- 실제 iPhone 기기 서명과 앱스토어 배포는 수행하지 않았습니다.
+- 서류·조회 캐시 추가 후 최종 `:androidApp:assembleDebug` 성공. 최신 APK는 `../releases/yeojeong-android-debug.apk`로 복사했으며 저장소에서는 제외한다. 이 최종 APK의 추가 설치·UI 조작 검수는 수행하지 않았다. 이전 API 35 설치·실행 기록과 구분한다.
+- 최종 iOS 공통 테스트 및 Xcode Debug simulator 앱 빌드 성공, iPhone 16 Pro / iOS 18.2 시뮬레이터 재설치·실행 확인. Bundle ID는 `com.travel.app`이다.
+- 공통 코드의 JVM 테스트 70개, iOS 시뮬레이터 테스트 69개 통과. 같은 공통 시나리오가 겹치며 JVM 전용 전체 시간대 전환 비교 1개 차이다.
+- iOS에서 예약 CRUD와 네이티브 파일 선택·취소, 예약 연결, PDF 업로드, 이름 편집, 서류 삭제 확인 후 취소를 확인했다. QuickLook 실제 열기·공유 완료·오프라인 재시작 UI는 미검증이다. 캐시·해시·오프라인 조회 로직 테스트와 실제 UI 검수는 구분한다.
+- Android 시스템 뒤로가기와 Google 항공편 왕복·편도 연결의 이전 확인 기록은 [검증 문서](../docs/VERIFICATION.md)를 참조한다. Android의 새 예약·서류 UI 조작은 미검증이다.
+- 실제 기기와 스토어 배포는 수행하지 않았다. 현재는 앱 실시간 시연 없이 화면 캡처를 사용하는 기획 발표 단계다.
+
+### 플랫폼 문서 보관
+
+공통 파일 계약은 `platform/DocumentPlatform.kt`, 각 플랫폼의 구현은 `androidMain`·`iosMain`에 있다. Android는 시스템 문서 선택기와 앱 전용 파일·FileProvider를 사용한다. iOS는 문서 선택기·앱 전용 캐시·QuickLook 어댑터를 구현했다. iOS의 Files 앱에는 Documents 폴더만 노출하며 Application Support 캐시는 노출하지 않는다. 파일 형식·크기·해시와 API 계약은 [여행 서류 문서](../docs/DOCUMENTS_API.md)를 따른다.
 
 ## 고정 버전과 근거
 

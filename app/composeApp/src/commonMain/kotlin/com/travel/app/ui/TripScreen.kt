@@ -98,6 +98,9 @@ import com.travel.app.data.*
 @Composable private fun Bookings(data:Workspace,busy:Boolean,onFlights:()->Unit,onAdd:(String)->Unit) {
     ActionButton("예약 추가",{onAdd("reservation-new")},Modifier.fillMaxWidth(),enabled=!busy,blue=true)
     Spacer(Modifier.height(8.dp))
+    OutlinedButton(onClick={onAdd("documents|")},enabled=!busy,modifier=Modifier.fillMaxWidth().heightIn(min=52.dp),shape=RoundedCornerShape(18.dp)) {
+        Icon(Icons.Outlined.FolderOpen,null,Modifier.size(20.dp));Spacer(Modifier.width(8.dp));Text("여행 서류 · ${data.documents.size}개")
+    }
     TextButton(onClick=onFlights,enabled=!busy,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
         Icon(Icons.Outlined.FlightTakeoff,null,Modifier.size(20.dp));Spacer(Modifier.width(8.dp));Text("항공권 검색")
     }
