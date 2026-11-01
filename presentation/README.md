@@ -1,8 +1,8 @@
 # 여정 기획 발표
 
-[최신 PPTX 수정본 다운로드](여정_기획발표_수정본.pptx)
+[최신 PPTX 수정본 다운로드](여정_기획발표_수정본_v2.pptx)
 
-16:9, 총 7장이다. 실제 앱 시연 없이 화면과 구조도로 설명한다.
+16:9, 총 8장이다. 실제 앱 시연 없이 화면과 구조도로 설명한다.
 
 1. 표지: 앱 이름과 아이콘·로딩 화면
 2. 목차
@@ -11,6 +11,9 @@
 5. 기술 스택
 6. 전체 시스템 구조
 7. 현재 범위와 다음 단계
+8. 마무리: 감사합니다.
+
+마무리는 목차에 넣지 않았다. 현재 범위는 여행 계획·여행 준비·현지 기록으로 나눠 정렬했다.
 
 목차·본문·구조도·연결선·비교표는 편집할 수 있다. 한글은 **Malgun Gothic(맑은 고딕)**, 영문은 **Aptos**를 사용한다. 별도의 Noto 글꼴 설치가 필요하지 않으며 발표자 노트·메모·댓글은 제거했다. 기본 글꼴 안내: [Office 기본 테마](https://support.microsoft.com/ko-kr/office/foundations-experiences/new-office-theme), [맑은 고딕](https://learn.microsoft.com/en-us/typography/font-list/malgun-gothic).
 
