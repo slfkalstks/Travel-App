@@ -1,0 +1,455 @@
+{
+  "trip": {
+    "id": "trip-osaka-2026",
+    "title": "오사카 여행",
+    "destination": "오사카",
+    "country": "일본",
+    "startDate": "2026-11-12",
+    "endDate": "2026-11-15",
+    "travelers": 1,
+    "budgetKrw": 1500000,
+    "coverImage": "osaka-autumn"
+  },
+  "events": [
+    {
+      "id": "ev-01",
+      "date": "2026-11-12",
+      "startTime": "09:10",
+      "endTime": "11:00",
+      "title": "인천 → 간사이",
+      "category": "flight",
+      "location": "인천공항 → 간사이공항",
+      "note": "출발 2시간 전 공항 도착",
+      "costKrw": 0,
+      "latitude": 34.4347,
+      "longitude": 135.244
+    },
+    {
+      "id": "ev-02",
+      "date": "2026-11-12",
+      "startTime": "12:00",
+      "endTime": "13:00",
+      "title": "간사이공항 → 난바",
+      "category": "transport",
+      "location": "간사이공항 → 난바",
+      "note": "도착 후 난바행 교통편 확인",
+      "costKrw": 14000,
+      "latitude": 34.6687,
+      "longitude": 135.5013
+    },
+    {
+      "id": "ev-03",
+      "date": "2026-11-12",
+      "startTime": "14:00",
+      "endTime": "15:00",
+      "title": "숙소 체크인",
+      "category": "stay",
+      "location": "난바 숙소",
+      "note": "짐 보관 가능 여부와 체크인 시간 확인",
+      "costKrw": 0,
+      "latitude": 34.6687,
+      "longitude": 135.5013
+    },
+    {
+      "id": "ev-04",
+      "date": "2026-11-12",
+      "startTime": "16:00",
+      "endTime": "17:30",
+      "title": "도톤보리 산책",
+      "category": "place",
+      "location": "도톤보리",
+      "note": "강변 산책 후 근처에서 저녁 식사",
+      "costKrw": 0,
+      "latitude": 34.6687,
+      "longitude": 135.5013
+    },
+    {
+      "id": "ev-05",
+      "date": "2026-11-12",
+      "startTime": "18:00",
+      "endTime": "19:30",
+      "title": "오코노미야키 저녁",
+      "category": "food",
+      "location": "난바",
+      "note": "1인 예산 22,000원",
+      "costKrw": 22000,
+      "latitude": 34.6687,
+      "longitude": 135.5013
+    },
+    {
+      "id": "ev-06",
+      "date": "2026-11-13",
+      "startTime": "09:30",
+      "endTime": "10:30",
+      "title": "구로몬 시장 아침 식사",
+      "category": "food",
+      "location": "구로몬 시장",
+      "note": "현금과 작은 동전지갑 챙기기",
+      "costKrw": 18000,
+      "latitude": 34.6653,
+      "longitude": 135.5064
+    },
+    {
+      "id": "ev-07",
+      "date": "2026-11-13",
+      "startTime": "11:30",
+      "endTime": "14:00",
+      "title": "오사카성 공원",
+      "category": "place",
+      "location": "오사카성 공원",
+      "note": "공원 산책 중심으로 계획",
+      "costKrw": 0,
+      "latitude": 34.6873,
+      "longitude": 135.5262
+    },
+    {
+      "id": "ev-08",
+      "date": "2026-11-13",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "title": "나카자키초 카페",
+      "category": "food",
+      "location": "나카자키초",
+      "note": "휴식 시간 1시간 30분",
+      "costKrw": 12000,
+      "latitude": 34.707,
+      "longitude": 135.506
+    },
+    {
+      "id": "ev-09",
+      "date": "2026-11-13",
+      "startTime": "17:30",
+      "endTime": "19:00",
+      "title": "우메다 저녁 산책",
+      "category": "place",
+      "location": "우메다",
+      "note": "저녁 식사 후 숙소로 이동",
+      "costKrw": 0,
+      "latitude": 34.7055,
+      "longitude": 135.4983
+    },
+    {
+      "id": "ev-10",
+      "date": "2026-11-14",
+      "startTime": "09:00",
+      "endTime": "10:00",
+      "title": "오사카 → 교토",
+      "category": "transport",
+      "location": "오사카 → 교토",
+      "note": "출발 전 열차 경로와 소요 시간 확인",
+      "costKrw": 12000,
+      "latitude": 34.9858,
+      "longitude": 135.7588
+    },
+    {
+      "id": "ev-11",
+      "date": "2026-11-14",
+      "startTime": "10:30",
+      "endTime": "12:00",
+      "title": "기온 산책",
+      "category": "place",
+      "location": "교토 기온",
+      "note": "촬영 제한 안내 확인",
+      "costKrw": 0,
+      "latitude": 35.003,
+      "longitude": 135.778
+    },
+    {
+      "id": "ev-12",
+      "date": "2026-11-14",
+      "startTime": "12:30",
+      "endTime": "14:00",
+      "title": "히가시야마 점심",
+      "category": "food",
+      "location": "교토 히가시야마",
+      "note": "점심 식사와 카페 휴식",
+      "costKrw": 26000,
+      "latitude": 34.998,
+      "longitude": 135.78
+    },
+    {
+      "id": "ev-13",
+      "date": "2026-11-14",
+      "startTime": "15:00",
+      "endTime": "16:30",
+      "title": "가모가와 산책",
+      "category": "place",
+      "location": "교토 가모가와",
+      "note": "걷기 편한 신발 준비",
+      "costKrw": 0,
+      "latitude": 35.004,
+      "longitude": 135.772
+    },
+    {
+      "id": "ev-14",
+      "date": "2026-11-14",
+      "startTime": "18:00",
+      "endTime": "19:00",
+      "title": "교토 → 오사카",
+      "category": "transport",
+      "location": "교토 → 오사카",
+      "note": "돌아오는 열차 시간 확인",
+      "costKrw": 12000,
+      "latitude": 34.6687,
+      "longitude": 135.5013
+    },
+    {
+      "id": "ev-15",
+      "date": "2026-11-15",
+      "startTime": "09:00",
+      "endTime": "10:30",
+      "title": "난바 카페·기념품",
+      "category": "food",
+      "location": "난바",
+      "note": "수하물 여유 공간 확인",
+      "costKrw": 10000,
+      "latitude": 34.6687,
+      "longitude": 135.5013
+    },
+    {
+      "id": "ev-16",
+      "date": "2026-11-15",
+      "startTime": "11:00",
+      "endTime": "12:00",
+      "title": "숙소 체크아웃",
+      "category": "stay",
+      "location": "난바 숙소",
+      "note": "충전기·여권·카드 확인",
+      "costKrw": 0,
+      "latitude": 34.6687,
+      "longitude": 135.5013
+    },
+    {
+      "id": "ev-17",
+      "date": "2026-11-15",
+      "startTime": "12:30",
+      "endTime": "13:30",
+      "title": "난바 → 간사이공항",
+      "category": "transport",
+      "location": "난바 → 간사이공항",
+      "note": "출발 2시간 전 공항 도착",
+      "costKrw": 14000,
+      "latitude": 34.4347,
+      "longitude": 135.244
+    },
+    {
+      "id": "ev-18",
+      "date": "2026-11-15",
+      "startTime": "16:10",
+      "endTime": "18:10",
+      "title": "간사이 → 인천",
+      "category": "flight",
+      "location": "간사이공항 → 인천공항",
+      "note": "출국 전 항공편 시간 다시 확인",
+      "costKrw": 0,
+      "latitude": 37.4602,
+      "longitude": 126.4407
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-01",
+      "title": "여권 유효기간 확인",
+      "category": "packing",
+      "done": true
+    },
+    {
+      "id": "task-02",
+      "title": "왕복 항공편 일정 정리",
+      "category": "booking",
+      "done": true
+    },
+    {
+      "id": "task-03",
+      "title": "숙소 위치 확인",
+      "category": "booking",
+      "done": true
+    },
+    {
+      "id": "task-04",
+      "title": "여행자 보험 증권 확인",
+      "category": "booking",
+      "done": false
+    },
+    {
+      "id": "task-05",
+      "title": "eSIM 준비하기",
+      "category": "booking",
+      "done": false
+    },
+    {
+      "id": "task-06",
+      "title": "해외 결제 카드 확인",
+      "category": "packing",
+      "done": true
+    },
+    {
+      "id": "task-07",
+      "title": "보조배터리 충전",
+      "category": "packing",
+      "done": false
+    },
+    {
+      "id": "task-08",
+      "title": "가벼운 겉옷 챙기기",
+      "category": "packing",
+      "done": false
+    },
+    {
+      "id": "task-09",
+      "title": "충전기와 변환 어댑터",
+      "category": "packing",
+      "done": false
+    },
+    {
+      "id": "task-10",
+      "title": "예약 내역 오프라인 저장",
+      "category": "booking",
+      "done": false
+    }
+  ],
+  "expenses": [
+    {
+      "id": "exp-01",
+      "title": "왕복 항공권",
+      "category": "flight",
+      "amountKrw": 328000,
+      "date": "2026-10-20",
+      "method": "카드"
+    },
+    {
+      "id": "exp-02",
+      "title": "난바 숙소 3박",
+      "category": "stay",
+      "amountKrw": 354000,
+      "date": "2026-10-21",
+      "method": "카드"
+    },
+    {
+      "id": "exp-03",
+      "title": "공항 왕복 교통",
+      "category": "transport",
+      "amountKrw": 28000,
+      "date": "2026-10-28",
+      "method": "카드"
+    },
+    {
+      "id": "exp-04",
+      "title": "여행자 보험",
+      "category": "other",
+      "amountKrw": 12000,
+      "date": "2026-10-29",
+      "method": "카드"
+    }
+  ],
+  "reservations": [
+    {
+      "id": "res-01",
+      "type": "flight",
+      "title": "인천 → 오사카",
+      "date": "2026-11-12",
+      "time": "09:10",
+      "reference": "",
+      "detail": "인천 출발 · 간사이 도착 · 항공편 선택 전",
+      "status": "planned"
+    },
+    {
+      "id": "res-02",
+      "type": "stay",
+      "title": "난바 숙소 · 3박",
+      "date": "2026-11-12",
+      "time": "14:00",
+      "reference": "",
+      "detail": "11월 12일 체크인 · 11월 15일 체크아웃 · 1인",
+      "status": "planned"
+    },
+    {
+      "id": "res-03",
+      "type": "transport",
+      "title": "공항 왕복 교통",
+      "date": "2026-11-12",
+      "time": "12:00",
+      "reference": "",
+      "detail": "간사이공항 ↔ 난바 · 왕복 이동 계획",
+      "status": "planned"
+    },
+    {
+      "id": "res-04",
+      "type": "flight",
+      "title": "오사카 → 인천",
+      "date": "2026-11-15",
+      "time": "16:10",
+      "reference": "",
+      "detail": "간사이 출발 · 인천 도착 · 항공편 선택 전",
+      "status": "planned"
+    }
+  ],
+  "favorites": [
+    {
+      "id": "fav-01",
+      "title": "도톤보리 강변",
+      "category": "place",
+      "location": "난바",
+      "note": "첫날 저녁 산책",
+      "saved": true,
+      "latitude": 34.6687,
+      "longitude": 135.5013
+    },
+    {
+      "id": "fav-02",
+      "title": "오사카성 공원",
+      "category": "place",
+      "location": "주오구",
+      "note": "둘째 날 오전 방문",
+      "saved": true,
+      "latitude": 34.6873,
+      "longitude": 135.5262
+    },
+    {
+      "id": "fav-03",
+      "title": "나카자키초 카페 골목",
+      "category": "food",
+      "location": "기타구",
+      "note": "오후 카페 휴식",
+      "saved": true,
+      "latitude": 34.707,
+      "longitude": 135.506
+    },
+    {
+      "id": "fav-04",
+      "title": "가모가와 산책",
+      "category": "place",
+      "location": "교토",
+      "note": "교토 당일치기 산책 코스",
+      "saved": true,
+      "latitude": 35.004,
+      "longitude": 135.772
+    },
+    {
+      "id": "fav-05",
+      "title": "구로몬 시장",
+      "category": "food",
+      "location": "닛폰바시",
+      "note": "아침 식사 후보",
+      "saved": false,
+      "latitude": 34.6653,
+      "longitude": 135.5064
+    }
+  ],
+  "journals": [
+    {
+      "id": "journal-01",
+      "date": "2026-11-01",
+      "title": "출국 전 확인할 것",
+      "body": "여권과 해외 결제 카드 챙기기. eSIM 설치 방법을 미리 확인하고, 공항 이동 시간과 수하물 규정을 항공편 선택 후 정리하기.",
+      "mood": "준비"
+    },
+    {
+      "id": "journal-02",
+      "date": "2026-11-01",
+      "title": "교토 당일치기 준비",
+      "body": "오사카에서 교토로 가는 열차 경로 확인. 기온과 가모가와를 중심으로 걷고, 비가 오면 실내 일정으로 바꾸기. 편한 신발 챙기기.",
+      "mood": "계획"
+    }
+  ]
+}

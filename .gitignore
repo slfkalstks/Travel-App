@@ -1,0 +1,48 @@
+# Local build caches and generated outputs
+**/build/
+**/.gradle/
+**/.kotlin/
+**/local.properties
+.DS_Store
+**/.idea/
+**/DerivedData/
+**/xcuserdata/
+*.xcuserstate
+
+# Local runtime state; checked-in seed resources stay publishable
+/backend/data/
+*.log
+*.pid
+*.hprof
+
+# Reference repository checkouts; keep our installation and direction docs
+/design-references/awesome-design-md/
+/design-references/web-interface-guidelines/
+
+# Release artifacts are distributed separately from source
+/releases/
+/dist/
+*.apk
+*.aab
+*.ipa
+*.dmg
+*.pkg
+*.exe
+*.msi
+*.deb
+*.rpm
+*.app/
+*.xcarchive/
+*.framework/
+*.xcframework/
+
+# Developer credentials and signing material
+.env
+.env.*
+!.env.example
+!.env.sample
+*.keystore
+*.jks
+*.p12
+*.p8
+*.mobileprovision
