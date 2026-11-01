@@ -76,13 +76,22 @@
 
 <img src="docs/screenshots/46-destination-sources.png" width="240" alt="지명 데이터 출처와 라이선스"/>
 
+| 예약 추가 | 예약 수정 | 시간대 검색 |
+|---|---|---|
+| <img src="docs/screenshots/47-reservation-create.png" width="240" alt="종류별 예약 추가"/> | <img src="docs/screenshots/48-reservation-edit.png" width="240" alt="기존 예약 내용 유지와 수정"/> | <img src="docs/screenshots/49-reservation-time-zone.png" width="240" alt="예약 현지 시각의 시간대 검색"/> |
+
+| 예약 삭제 확인 | 활동 예약 상세 |
+|---|---|
+| <img src="docs/screenshots/50-reservation-delete-confirm.png" width="240" alt="예약처 취소와 구분한 앱 기록 삭제"/> | <img src="docs/screenshots/51-reservation-activity-detail.png" width="240" alt="저장한 활동 예약의 현지 시간과 시간대"/> |
+
 항공편 검색 결과는 외부 제공자 화면이며, 표시된 가격과 이용 가능 여부는 조회 시점에 따라 달라집니다.
 
 ## 주요 기능
 
 - **여행 관리:** 여러 여행의 생성·선택·검색·수정·보관/해제·삭제, 여행별 일정·준비물·경비·예약·장소·기록 분리. 이름·도시/지역·국가·시작/종료일·인원·원화 예산을 편집하며, 여행이 없으면 새 여행 생성으로 안내합니다.
 - **목적지 선택:** 국가를 검색·선택한 뒤 해당 국가의 도시·지역만 검색합니다. 국가 변경 시 이전 도시를 초기화하고, 한글·영문 검색과 목록 밖 지역의 직접 입력을 지원합니다. 오프라인 지명 데이터와 라이선스는 [데이터 문서](docs/DESTINATION_DATA.md)에 기록했습니다.
-- **여행 상세:** 날짜별 일정 조회·추가·수정·삭제, 일정 카드의 메모 미리보기와 상세 메모 편집, 준비물 추가·수정·삭제·완료 표시, 예약 계획 상세 조회, 지출 추가·예산 합계, 여행 메모 작성.
+- **여행 상세:** 날짜별 일정 조회·추가·수정·삭제, 일정 카드의 메모 미리보기와 상세 메모 편집, 준비물 추가·수정·삭제·완료 표시, 지출 추가·예산 합계, 여행 메모 작성.
+- **예약 기록:** 항공·숙소·교통·활동의 직접 추가·조회·수정·삭제, 장소·예약처·예약번호·메모·상태, 시각 미정과 현지 시간대, 체크아웃·취소 마감·규정 메모. 날짜변경선을 넘는 이동은 실제 시각으로 비교하고 서머타임 중복 시각은 직접 선택합니다. [예약 계약](docs/RESERVATION_API.md)
 - **항공권:** 출발·도착 공항 선택, 왕복·편도, 날짜 선택 후 Google 항공편 검색으로 이동. 노선과 날짜를 전달하며 인원·좌석·가격 확인과 예약은 제공자 화면에서 진행합니다.
 - **장소:** 검색·카테고리·저장 필터, 즐겨찾기, Google 지도 열기.
 - **모바일 UX:** 4개 하단 탭, 날짜 달력, 입력 필드별 오류, 저장 진행 상태, 실패 시 내용 유지, 탭 이동 시 검색 조건 유지, 다크 모드·동작 줄이기.
@@ -124,6 +133,7 @@ APK는 `app/androidApp/build/outputs/apk/debug/androidApp-debug.apk`에 생성�
 |---|---|---|
 | 모바일 | Kotlin Multiplatform + Compose Multiplatform | Android·iOS의 UI와 업무 규칙을 공유하고 플랫폼 기능은 필요한 부분만 분리 |
 | 비동기·네트워크 | Coroutines, StateFlow, Ktor, kotlinx.serialization | 공통 Kotlin에서 상태와 요청·응답 처리를 일관되게 관리 |
+| 현지 시각 | kotlinx-datetime + 서버 JDK ZoneRules | 모바일 공통 시간대 처리와 서버의 엄격한 gap·overlap 검증; 고정 UTC 차이만으로 날짜를 계산하지 않음 |
 | 서버 | Kotlin + Spring Boot | 입력 검증, 계층 분리, API 통합 테스트와 향후 인증·DB 전환 |
 | 현재 저장 | 원자적 JSON 파일 교체 | 로컬 실행과 변경 유지가 간단하며 저장 실패 시 기존 데이터를 보존 |
 | 목표 DB | PostgreSQL | 여행·일정·지출·예약의 관계와 트랜잭션 관리. 현재 migration은 설계 단계 |
@@ -132,7 +142,7 @@ Flutter·React Native, SwiftUI 분리, 다른 백엔드·DB와의 비교는 [기
 
 ## 검증과 현재 범위
 
-Android APK와 iOS 시뮬레이터 앱을 빌드·설치해 확인했습니다. 다중 여행 변경을 포함해 백엔드 통합 테스트 33개, 공통 데이터·외부 URL 테스트 29개를 통과하고 Android·iOS를 다시 빌드했습니다. 실제 화면 조작의 확인 범위는 [검증 기록](docs/VERIFICATION.md)에 구분했습니다.
+Android APK와 iOS 시뮬레이터 앱을 빌드·설치해 확인했습니다. 예약 변경을 포함해 백엔드 통합 테스트 46개, 공통 데이터·외부 URL 및 JVM 시간대 경계 테스트 39개를 통과했습니다. 실제 화면 캡처 51개와 화면 조작의 확인 범위는 [검증 기록](docs/VERIFICATION.md)에 구분했습니다.
 
 서버는 로컬 단일 사용자 개발 환경을 대상으로 합니다. 기존 개발 여행 데이터는 보존하며 새 여행에는 예시 일정이나 준비물을 복사하지 않습니다. 로그인·사용자별 권한, 오프라인 동기화, 파일 첨부, PostgreSQL 실제 연결, 내부 실시간 운임 API와 예약·결제는 아직 구현하지 않았습니다. 실제 기기와 스토어 배포도 별도 검증이 필요합니다. **전체 PRD 목표는 진행 중**이며 요구사항별 남은 조건은 [전체 목표 감사](GOAL_AUDIT.md)에 기록합니다.
 
@@ -141,6 +151,7 @@ Android APK와 iOS 시뮬레이터 앱을 빌드·설치해 확인했습니다. 
 - [기획·PRD](docs/planning/01_기획_PRD.md)
 - [시스템·데이터·API 설계](docs/planning/02_시스템_데이터_API_설계.md)
 - [현재 다중 여행 API·저장 계약](docs/MULTITRIP_API.md)
+- [예약 API·시간대·스키마 계약](docs/RESERVATION_API.md)
 - [전체 목표 진행 감사](GOAL_AUDIT.md)
 - [모바일 UI·항공권 수정사항](docs/planning/05_모바일_UI_재설계_및_항공권.md)
 - [대학 발표 설명 원고](docs/planning/04_대학발표_설명원고.md)

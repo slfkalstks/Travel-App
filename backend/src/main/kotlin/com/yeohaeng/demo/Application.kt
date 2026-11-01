@@ -51,6 +51,13 @@ class WorkspaceController(private val service: WorkspaceService) {
         @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.editEvent(id, request, tripId)
     @DeleteMapping("/events/{id}") fun deleteEvent(@PathVariable id: String,
         @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.deleteEvent(id, tripId)
+    @PostMapping("/reservations") fun addReservation(@Valid @RequestBody request: ReservationRequest,
+        @RequestHeader("Idempotency-Key", required = false) key: String?,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.addReservation(request, key, tripId)
+    @PatchMapping("/reservations/{id}") fun editReservation(@PathVariable id: String, @Valid @RequestBody request: ReservationRequest,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.editReservation(id, request, tripId)
+    @DeleteMapping("/reservations/{id}") fun deleteReservation(@PathVariable id: String,
+        @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.deleteReservation(id, tripId)
     @PostMapping("/expenses") fun expense(@Valid @RequestBody request: ExpenseRequest,
         @RequestHeader("Idempotency-Key", required = false) key: String?,
         @RequestHeader("X-Trip-Id", required = false) tripId: String?) = service.addExpense(request, key, tripId)

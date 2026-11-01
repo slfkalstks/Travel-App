@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:travel-app:reservation",
+  "title": "Reservation",
+  "description": "One reservation inside Workspace.reservations. All request fields are materialized; legacy records receive the documented defaults.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Opaque server-generated record ID. Clients must not parse its structure.",
+      "minLength": 1
+    },
+    "source": {
+      "type": "string",
+      "description": "Manual provenance. Legacy records missing source decode as manual.",
+      "const": "manual",
+      "default": "manual"
+    },
+    "type": {
+      "$ref": "urn:travel-app:reservation-input#/properties/type"
+    },
+    "title": {
+      "$ref": "urn:travel-app:reservation-input#/properties/title"
+    },
+    "date": {
+      "$ref": "urn:travel-app:reservation-input#/properties/date"
+    },
+    "time": {
+      "$ref": "urn:travel-app:reservation-input#/properties/time"
+    },
+    "reference": {
+      "$ref": "urn:travel-app:reservation-input#/properties/reference"
+    },
+    "detail": {
+      "$ref": "urn:travel-app:reservation-input#/properties/detail"
+    },
+    "status": {
+      "$ref": "urn:travel-app:reservation-input#/properties/status"
+    },
+    "location": {
+      "$ref": "urn:travel-app:reservation-input#/properties/location"
+    },
+    "endLocation": {
+      "$ref": "urn:travel-app:reservation-input#/properties/endLocation"
+    },
+    "provider": {
+      "$ref": "urn:travel-app:reservation-input#/properties/provider"
+    },
+    "endDate": {
+      "$ref": "urn:travel-app:reservation-input#/properties/endDate"
+    },
+    "endTime": {
+      "$ref": "urn:travel-app:reservation-input#/properties/endTime"
+    },
+    "timeZone": {
+      "$ref": "urn:travel-app:reservation-input#/properties/timeZone"
+    },
+    "endTimeZone": {
+      "$ref": "urn:travel-app:reservation-input#/properties/endTimeZone"
+    },
+    "cancellationDeadline": {
+      "$ref": "urn:travel-app:reservation-input#/properties/cancellationDeadline"
+    },
+    "cancellationTimeZone": {
+      "$ref": "urn:travel-app:reservation-input#/properties/cancellationTimeZone"
+    },
+    "cancellationPolicy": {
+      "$ref": "urn:travel-app:reservation-input#/properties/cancellationPolicy"
+    },
+    "utcOffset": {
+      "$ref": "urn:travel-app:reservation-input#/properties/utcOffset"
+    },
+    "endUtcOffset": {
+      "$ref": "urn:travel-app:reservation-input#/properties/endUtcOffset"
+    },
+    "cancellationUtcOffset": {
+      "$ref": "urn:travel-app:reservation-input#/properties/cancellationUtcOffset"
+    }
+  },
+  "required": [
+    "id",
+    "source",
+    "type",
+    "title",
+    "date",
+    "time",
+    "reference",
+    "detail",
+    "status",
+    "location",
+    "endLocation",
+    "provider",
+    "endDate",
+    "endTime",
+    "timeZone",
+    "endTimeZone",
+    "cancellationDeadline",
+    "cancellationTimeZone",
+    "cancellationPolicy",
+    "utcOffset",
+    "endUtcOffset",
+    "cancellationUtcOffset"
+  ]
+}

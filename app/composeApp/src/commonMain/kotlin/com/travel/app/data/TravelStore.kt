@@ -107,6 +107,9 @@ class TravelStore(
             catch(e: Exception) { mutable.update { it.copy(saving = false, error = "삭제 결과를 확인하지 못했어요. 다시 시도해 주세요.") } }
         }
     }
+    fun addReservation(input: ReservationInput, operationId: String, onSaved: () -> Unit) = mutate("reservations", input, success = "예약을 저장했어요", operationId = operationId, onSaved = onSaved)
+    fun updateReservation(id: String, input: ReservationInput, onSaved: () -> Unit) = mutate("reservations/$id", input, true, "예약을 수정했어요", onSaved = onSaved)
+    fun deleteReservation(id: String, onSaved: () -> Unit) = mutate("reservations/$id", Unit, success = "예약 기록을 삭제했어요", delete = true, onSaved = onSaved)
     fun updateEvent(id: String, input: EventEditInput, onSaved: () -> Unit) = mutate("events/$id", input, true, "일정을 수정했어요", onSaved = onSaved)
     fun deleteEvent(id: String, onSaved: () -> Unit) = mutate("events/$id", Unit, success = "일정을 삭제했어요", delete = true, onSaved = onSaved)
     fun addTask(input: TaskInput, operationId: String, onSaved: () -> Unit) = mutate("tasks", input, success = "준비물을 추가했어요", operationId = operationId, onSaved = onSaved)

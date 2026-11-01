@@ -107,6 +107,8 @@ import kotlinx.coroutines.delay
             if(showEditor) {
                 val dismiss={ if(!store.state.value.saving){editor=null;store.clearError()} }
                 if(editor!!.startsWith("trip-")) TripEditorScreen(editor!!,state,store,dismiss)
+                else if(editor!!.startsWith("reservation-detail|")) ReservationDetailScreen(editor!!.substringAfter('|'),state,store,onEdit={store.clearError();editor=it},onDismiss=dismiss)
+                else if(editor!!.startsWith("reservation-")) ReservationEditorScreen(editor!!,state,store,dismiss)
                 else if(editor!!.startsWith("event-detail|")) EventDetailScreen(editor!!.substringAfter('|'),state,store,onEdit={store.clearError();editor=it},onDismiss=dismiss)
                 else if(editor!!.startsWith("task-")) TaskEditorScreen(editor!!,state,store,dismiss)
                 else EditorDialog(editor!!,state,store,dismiss)

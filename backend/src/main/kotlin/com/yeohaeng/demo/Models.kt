@@ -11,7 +11,12 @@ data class Task(val id: String, val title: String, val category: String, val don
 data class Expense(val id: String, val title: String, val category: String, val amountKrw: Long,
     val date: String, val method: String)
 data class Reservation(val id: String, val type: String, val title: String, val date: String,
-    val time: String, val reference: String, val detail: String, val status: String)
+    val time: String, val reference: String, val detail: String, val status: String,
+    val location: String = "", val endLocation: String = "", val provider: String = "",
+    val endDate: String = "", val endTime: String = "", val timeZone: String = "", val endTimeZone: String = "",
+    val cancellationDeadline: String = "", val cancellationTimeZone: String = "", val cancellationPolicy: String = "",
+    val utcOffset: String = "", val endUtcOffset: String = "", val cancellationUtcOffset: String = "",
+    val source: String = "manual")
 data class Favorite(val id: String, val title: String, val category: String, val location: String,
     val note: String, val saved: Boolean, val latitude: Double, val longitude: Double)
 data class Journal(val id: String, val date: String, val title: String, val body: String, val mood: String)

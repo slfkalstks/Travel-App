@@ -102,22 +102,23 @@ class MultitripApiTest {
         assertEquals("1900-01-01", create(request.copy(startDate = "1900-01-01", endDate = "1900-01-01", travelers = 20)).trip.startDate)
     }
 
-    @Test fun `contracting trip dates protects events reservations and expenses but allows pretrip expenses`() {
+    @Test fun `contracting trip dates protects events and expenses while preserving out of period reservations`() {
         val request = input(); val trip = create(request); val id = trip.trip.id
         val event = TravelEvent("event", "2026-11-12", "10:00", "11:00", "산책", "place", "교토", "", 0, 0.0, 0.0)
         val reservation = Reservation("reservation", "stay", "숙소", "2026-11-15", "10:00", "", "", "planned")
         val expense = Expense("expense", "교통", "transport", 1000, "2026-11-15", "카드")
         val contraction = request.copy(startDate = "2026-11-13", endDate = "2026-11-14")
-        listOf(trip.copy(events = listOf(event)), trip.copy(reservations = listOf(reservation)), trip.copy(expenses = listOf(expense))).forEach { fixture ->
+        listOf(trip.copy(events = listOf(event)), trip.copy(expenses = listOf(expense))).forEach { fixture ->
             repository.update(tripId = id) { fixture }
             mvc.perform(patch("/api/demo/trips/$id").contentType("application/json").content(mapper.writeValueAsString(contraction)))
                 .andExpect(status().isBadRequest)
             assertEquals(fixture, repository.read(id))
         }
-        repository.update(tripId = id) { trip.copy(expenses = listOf(expense.copy(date = "2026-10-01")), journals = listOf(Journal("memo", "2026-12-01", "회고", "기록", "좋음"))) }
+        repository.update(tripId = id) { trip.copy(reservations = listOf(reservation), expenses = listOf(expense.copy(date = "2026-10-01")), journals = listOf(Journal("memo", "2026-12-01", "회고", "기록", "좋음"))) }
         mvc.perform(patch("/api/demo/trips/$id").contentType("application/json").content(mapper.writeValueAsString(contraction)))
             .andExpect(status().isOk)
         assertEquals("2026-10-01", getWorkspace(id).expenses.single().date)
+        assertEquals(listOf(reservation), getWorkspace(id).reservations)
     }
 
     @Test fun `all nested operations use trip header and receipt keys are independent between trips`() {

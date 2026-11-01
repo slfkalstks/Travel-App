@@ -8,19 +8,23 @@
 |---|---|---|---|
 | Spring 기존 API | `cd backend && ./gradlew test` | 24개, 실패 0, 오류 0 | `backend/build/test-results/test/TEST-com.yeohaeng.demo.DemoApiTest.xml` |
 | Spring 다중 여행 API | 위 서버 테스트 명령 | 9개, 실패 0, 오류 0 | `backend/build/test-results/test/TEST-com.yeohaeng.demo.MultitripApiTest.xml` |
+| Spring 예약 API | 위 서버 테스트 명령 | 13개, 실패 0, 오류 0 | `backend/build/test-results/test/TEST-com.yeohaeng.demo.ReservationApiTest.xml` |
 | 공통 상태 관리 | `cd app && ./gradlew :composeApp:desktopTest` | 12개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.TravelStoreTest.xml` |
 | 다중 여행 상태 관리 | 위 공통 테스트 명령 | 9개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.MultitripStoreTest.xml` |
 | 목적지 검색 | 위 공통 테스트 명령 | 4개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.DestinationCatalogTest.xml` |
+| 예약 상태 관리 | 위 공통 테스트 명령 | 4개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.ReservationStoreTest.xml` |
+| 예약 현지 시각 | 위 공통 테스트 명령 | 5개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.ReservationTimeTest.xml` |
+| JVM 전체 시간대 전환 비교 | 위 공통 테스트 명령 | 1개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.ReservationTimeZoneRulesTest.xml` |
 | 외부 URL 처리 | 위 공통 테스트 명령 | 4개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.platform.ExternalUrlsTest.xml` |
 | Android | `cd app && ./gradlew :androidApp:assembleDebug` | 빌드·설치·실행 성공 | API 35 Android 에뮬레이터 |
 | iOS 프레임워크 | `cd app && ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64` | 빌드 성공 | Apple Silicon 시뮬레이터 |
 | iOS 호스트 | Xcode `MorrowTravel`, Debug, iPhone Simulator 빌드 | 빌드·설치·실행 성공 | iPhone 16 Pro / iOS 18.2 |
 
-합계는 서버 33개, 공통 데이터·URL 29개다. 공통 테스트의 JVM 타깃 이름은 `desktop`이지만 데스크톱 제품이나 실행 앱은 없다. 빌드·테스트 산출물은 Git에서 제외한다. 다중 여행 기능을 추가한 후 서버·공통 테스트와 Android·iOS 빌드를 다시 실행했다. 빌드 성공과 실제 화면 조작 확인은 아래와 같이 구분한다.
+합계는 서버 46개, 공통 데이터·URL 및 JVM 전환 비교 39개다. 공통 테스트의 JVM 타깃 이름은 `desktop`이지만 데스크톱 제품이나 실행 앱은 없다. 빌드·테스트 산출물은 Git에서 제외한다. 예약 기능을 추가한 후 서버·공통 테스트와 Android·iOS 빌드를 다시 실행했다. 빌드 성공과 실제 화면 조작 확인은 아래와 같이 구분한다.
 
 ## 다중 여행·기존 데이터 보존
 
-- 서버 9개 테스트: 빈 여행 생성, 요청별 여행 선택과 모든 하위 데이터의 격리, 여행별 멱등성 키, 여행 생성 재시도·재시작·다른 본문 충돌, 수정·보관 시 ID/표지/하위 데이터 보존, 기간 축소 시 기존 일정·예약·지출 보호, 최종 여행 삭제 후 재시작 빈 상태, 삭제한 여행의 지연 생성 요청에 의한 부활 방지.
+- 서버 9개 테스트: 빈 여행 생성, 요청별 여행 선택과 모든 하위 데이터의 격리, 여행별 멱등성 키, 여행 생성 재시도·재시작·다른 본문 충돌, 수정·보관 시 ID/표지/하위 데이터 보존, 기간 축소 시 기존 일정·지출 보호, 기간 밖 예약 유지, 최종 여행 삭제 후 재시작 빈 상태, 삭제한 여행의 지연 생성 요청에 의한 부활 방지.
 - schema 1 → 2 마이그레이션 테스트: 기존 데이터·요청 영수증 보존, 원본 파일과 바이트가 같은 백업, 지원하지 않는 버전·손상·불일치 파일의 덮어쓰기 방지.
 - 실행 중 데이터도 schema 2로 이전했다. 기존 일정 18개·준비물 10개·지출 4개·예약 4개·장소 5개·기록 2개·멱등성 영수증 1개가 백업과 동일함을 비교했다. 기존 여행에는 `archived=false`만 추가했으며 원본 바이트 백업을 유지한다.
 - 공통 상태 9개 테스트: 선호 여행 선택, 보관하지 않은 여행 우선 선택, `X-Trip-Id` 전달, 저장 중 여행 전환 차단, 다른 여행 응답의 덮어쓰기 방지, 빈 목록에서 첫 여행 생성, 생성·삭제 실패 시 기존 상태 보존, 수정·보관 후 목록 반영과 비선택 여행을 관리할 때 현재 여행 유지, 선택 여행/마지막 여행 삭제 후 상태 정리.
@@ -34,6 +38,19 @@
 - 국가를 대한민국으로 변경하면 오사카 선택이 초기화되고 대한민국 도시 목록만 표시된다. 이 상태에서 Osaka 검색 결과가 비어 있음을 확인했다. 검색 키보드를 표시해 검색 입력과 직접 입력 버튼이 키보드 위에 유지됨도 확인했다.
 - 목록에 없는 이름을 직접 입력하는 경로는 사용자가 선택한 국가 아래의 명시적인 사용자 입력이다. 이를 지명 데이터베이스가 검증한 장소로 간주하지 않는다. 추가 검증용 여행은 API로 정리하고 기존 여행은 유지했다.
 - 지명은 로컬 리소스에서 읽으므로 검색 요청이 외부 서버로 전송되지 않는다. 항공·숙소의 실시간 API가 추가됐다는 뜻은 아니다.
+
+## 직접 기록한 예약
+
+- 계약 원본은 JSON Schema 두 개이며 요청은 정확히 20개 문자열 필드다. 결정적 DTO 생성기의 `--check`가 통과했다. `requirements-dev.txt`의 jsonschema로 예시 5개 통과·잘못된 타입/추가 필드 123개 거절을 확인했고, 실행 중 두 여행의 기존 예약 4개 응답도 스키마를 통과했다. [계약·재생성·검증 방법](RESERVATION_API.md)
+- 서버 13개 테스트는 생성·전체 수정·반복 삭제, 여행 격리, 멱등성 재시도/다른 본문 충돌, 재시작 영속성, 기존 8필드 기록 보존, 잘못된 요청에서 파일 보존을 확인한다. 시간 미정·자정, 시간대 누락, DST gap·overlap, 취소 마감, 날짜변경선을 넘는 이동과 날짜만 지정한 종료 순서도 포함한다.
+- 공통 상태 테스트 4개는 20필드 JSON·헤더, 중복 저장 차단, PATCH 대상 ID·응답 반영, 빈 본문 DELETE·다른 여행 선택·실패 보존을 확인한다. 현지 시각 테스트 5개는 일반 시각·존재하지 않는 시각·중복 시각·날짜변경선·잘못된 입력을 확인한다.
+- 독립 JVM 테스트는 JDK의 604개 시간대 ID, 고유 규칙 345개에서 1900~2100년 전환 38,310건의 경계 주변 191,497개 분 단위 시각을 비교했다. gap 내부 57,708개, overlap 내부 57,169개와 초 단위 과거 오프셋·비1시간 전환·날짜변경선을 포함해 모두 일치했다. 이 수치는 사용한 JDK 데이터 기준이며 iOS/Android 시간대 DB 전체가 동일하다는 증거로 해석하지 않는다.
+- 실제 iOS에서 활동 예약 생성(시각 미정) → 이름 수정 → `12:34`, `Asia/Tokyo` 지정 → 저장 → 앱 재실행 → 상세의 `UTC+09:00` 유지와 서버 값을 확인했다. 시간대 검색에서 폼으로 돌아와도 입력 내용이 유지된다.
+- 독립 리뷰에서 찾은 비이동 예약의 `endLocation` 손실을 수정했다. 별도 활동 예약의 제목만 실제 iOS에서 수정·저장한 후 숨긴 `endLocation`을 포함한 다른 모든 값이 동일함을 서버와 비교했다. 시간대 선택 후 폼 스크롤 초기화도 수정해 키보드로 이동한 중간 위치가 선택 복귀 후 유지됨을 실제 iOS에서 확인했다.
+- 기존 항공 예약의 상세·편집 값, 삭제 영향 확인창과 취소를 확인했다. 네이티브에서 삭제 실행은 하지 않았으며 반복 삭제는 API 테스트와 직접 생성한 검증용 예약의 API 정리로 구분한다.
+- 예약 폼이 열리자마자 중간으로 이동하던 문제는 공용 분류 탭의 ancestor `bringIntoView` 요청이 원인이었다. 탭 자신의 가로 위치만 조정하도록 수정해 폼 상단 시작과 기존 항공 일정 편집의 선택된 항공 탭 전체 표시를 실제 iOS에서 다시 확인했다.
+- 서버 교체 전 원본 파일을 바이트 단위로 백업했다(SHA-256 `981bf6f35d2e420721a637d35ea746d028f0d17e07b3df0d9c2a95cc61389ddd`). 검수 후 직접 만든 예약만 API로 정리했으며 두 여행의 원래 자료·기존 예약의 모든 값과 순서가 보존됐음을 비교했다.
+- Android 최종 APK 빌드·설치·Activity 시작, iOS 최종 호스트 빌드·설치·실행을 확인했다. Android 예약 UI 조작, 두 모바일 플랫폼 전체 DST 조합·큰 글자·화면 회전은 추가 검증 대상이다. 첨부파일 연결은 아직 구현하지 않았다.
 
 ## 실제 모바일 화면 확인
 

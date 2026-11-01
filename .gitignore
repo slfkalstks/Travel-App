@@ -2,6 +2,8 @@
 **/build/
 **/.gradle/
 **/.kotlin/
+**/.venv/
+**/__pycache__/
 **/local.properties
 .DS_Store
 **/.idea/

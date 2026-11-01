@@ -5,14 +5,14 @@ import androidx.compose.foundation.interaction.*
 import androidx.compose.animation.core.*
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
@@ -65,15 +65,27 @@ val Hairline @Composable get() = MaterialTheme.colorScheme.outlineVariant
 @Composable fun Label(text:String,accent:Boolean=false) { Text(text,fontSize=13.sp,color=if(accent)Accent else TextSecondary,fontWeight=FontWeight.Medium) }
 @Composable fun EmptyState(title:String,body:String) { Column(Modifier.fillMaxWidth().padding(vertical=40.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){Text(title,fontSize=18.sp,fontWeight=FontWeight.SemiBold);Text(body,color=TextSecondary,fontSize=14.sp,lineHeight=22.sp)} }
 @Composable fun Tabs(labels:List<String>,selected:Int,enabled:Boolean=true,onSelect:(Int)->Unit) {
-    val requesters=remember(labels){labels.map{BringIntoViewRequester()}}
-    LaunchedEffect(selected,requesters) {
-        // Wait for the selected chip's measured bounds before revealing its full width.
-        withFrameNanos { }
-        requesters.getOrNull(selected)?.bringIntoView()
+    val scroll=rememberScrollState()
+    val widths=remember(labels){mutableStateMapOf<Int,Int>()}
+    var viewportWidth by remember{mutableIntStateOf(0)}
+    val spacing=with(LocalDensity.current){8.dp.roundToPx()}
+    val reduced=LocalMotionReduced.current
+    val measured=labels.indices.map{widths[it]?:0}
+    LaunchedEffect(selected,measured,viewportWidth,scroll.maxValue,reduced) {
+        if(selected !in labels.indices||viewportWidth<=0||measured.take(selected+1).any{it<=0})return@LaunchedEffect
+        val left=measured.take(selected).sum()+selected*spacing
+        val right=left+measured[selected]
+        val target=when {
+            left<scroll.value->left
+            right>scroll.value+viewportWidth->right-viewportWidth
+            else->scroll.value
+        }.coerceIn(0,scroll.maxValue)
+        // Reveal only this strip horizontally. Parent forms must retain their vertical position.
+        if(reduced)scroll.scrollTo(target) else scroll.animateScrollTo(target)
     }
-    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+    Row(Modifier.fillMaxWidth().onSizeChanged{viewportWidth=it.width}.horizontalScroll(scroll),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
         labels.forEachIndexed { i,label ->
-            Surface(modifier=Modifier.bringIntoViewRequester(requesters[i]),color=if(i==selected)SignalInk else Grouped,shape=RoundedCornerShape(24.dp)) {
+            Surface(modifier=Modifier.onSizeChanged{if(widths[i]!=it.width)widths[i]=it.width},color=if(i==selected)SignalInk else Grouped,shape=RoundedCornerShape(24.dp)) {
                 Box(Modifier.widthIn(min=52.dp).heightIn(min=48.dp).selectable(i==selected,enabled=enabled,role=Role.Tab,onClick={onSelect(i)}).padding(horizontal=18.dp,vertical=12.dp),contentAlignment=Alignment.Center) {
                     Text(label,fontSize=15.sp,fontWeight=if(i==selected)FontWeight.Bold else FontWeight.Medium,color=if(i==selected)Signal else TextSecondary)
                 }

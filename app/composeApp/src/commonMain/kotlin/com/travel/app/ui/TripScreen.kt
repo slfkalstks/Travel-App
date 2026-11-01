@@ -30,7 +30,7 @@ import com.travel.app.data.*
             Text("${data.trip.startDate.take(4)}. ${shortDate(data.trip.startDate)} — ${shortDate(data.trip.endDate)} · ${data.trip.travelers}명",fontSize=14.sp,color=TextSecondary)
         }
         Tabs(listOf("일정","준비물","예약","경비"),tab,onSelect=onTab)
-        Column { when(tab){0->Schedule(data,visibleDay,{selectedDay=it},onAdd);1->Checklist(data,busy,onTask,onAdd);2->Bookings(data,onFlights);else->Budget(data){onAdd("expense")}} }
+        Column { when(tab){0->Schedule(data,visibleDay,{selectedDay=it},onAdd);1->Checklist(data,busy,onTask,onAdd);2->Bookings(data,busy,onFlights,onAdd);else->Budget(data){onAdd("expense")}} }
     }
 }
 @Composable private fun Schedule(data:Workspace,day:String,onDay:(String)->Unit,onAdd:(String)->Unit) {
@@ -95,26 +95,27 @@ import com.travel.app.data.*
         Spacer(Modifier.height(24.dp))
     }
 }
-@Composable private fun Bookings(data:Workspace,onFlights:()->Unit) {
-    var detail by remember{mutableStateOf<Reservation?>(null)}
-    ActionButton("항공권 검색",onFlights,Modifier.fillMaxWidth(),blue=true)
-    Spacer(Modifier.height(24.dp))
-    data.reservations.forEachIndexed{i,item->
-        Row(Modifier.fillMaxWidth().clickable{detail=item}.padding(vertical=20.dp),verticalAlignment=Alignment.Top){Icon(categoryIcon(item.type),null,Modifier.size(24.dp),tint=TextSecondary);Spacer(Modifier.width(16.dp));Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(7.dp)){Text(item.title,fontSize=17.sp,fontWeight=FontWeight.SemiBold);Text("${shortDate(item.date)} · ${item.time}",fontSize=14.sp,color=TextSecondary);Label(if(item.status=="confirmed")"예약 확정" else "직접 입력한 계획")};Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp),tint=TextSecondary)}
-        if(i<data.reservations.lastIndex)Line()
+@Composable private fun Bookings(data:Workspace,busy:Boolean,onFlights:()->Unit,onAdd:(String)->Unit) {
+    ActionButton("예약 추가",{onAdd("reservation-new")},Modifier.fillMaxWidth(),enabled=!busy,blue=true)
+    Spacer(Modifier.height(8.dp))
+    TextButton(onClick=onFlights,enabled=!busy,modifier=Modifier.fillMaxWidth().heightIn(min=48.dp)) {
+        Icon(Icons.Outlined.FlightTakeoff,null,Modifier.size(20.dp));Spacer(Modifier.width(8.dp));Text("항공권 검색")
     }
-    detail?.let { item ->
-        AlertDialog(
-            onDismissRequest={detail=null},
-            title={Text(item.title,fontWeight=FontWeight.Bold)},
-            text={Column(verticalArrangement=Arrangement.spacedBy(12.dp)) {
-                Text("${shortDate(item.date)} · ${item.time}${if(item.type=="flight") " 출발" else ""}",fontSize=14.sp,color=TextSecondary)
-                if(item.type!="flight"&&item.detail.isNotBlank())Text(item.detail,fontSize=15.sp)
-                if(item.type=="flight")Label(if(item.status=="confirmed")"예약 확정" else "항공편 선택 전")
-                if(item.reference.isNotBlank())Text("예약번호 ${item.reference}",fontSize=15.sp)
-            }},
-            confirmButton={TextButton(onClick={detail=null}){Text("닫기")}},
-        )
+    Spacer(Modifier.height(16.dp))
+    if(data.reservations.isEmpty())EmptyState("예약을 한곳에 모아보세요","항공·숙소·교통·활동의 예약번호와 현지 일시를 저장할 수 있어요.")
+    data.reservations.forEachIndexed{i,item->
+        Row(Modifier.fillMaxWidth().clickable(enabled=!busy){onAdd("reservation-detail|${item.id}")}.padding(vertical=20.dp),verticalAlignment=Alignment.Top) {
+            Icon(categoryIcon(item.type),null,Modifier.size(24.dp),tint=TextSecondary)
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f),verticalArrangement=Arrangement.spacedBy(7.dp)) {
+                Text(item.title,fontSize=17.sp,fontWeight=FontWeight.SemiBold)
+                Text("${shortDate(item.date)} · ${item.time.ifBlank{"시각 미정"}}",fontSize=14.sp,color=TextSecondary)
+                if(item.time.isNotBlank()&&item.timeZone.isNotBlank())Text(zoneDisplayName(item.timeZone),fontSize=12.sp,color=TextSecondary)
+                Label("${reservationTypeName(item.type)} · ${reservationStatusName(item.status)}")
+            }
+            Icon(Icons.Outlined.ChevronRight,null,Modifier.size(20.dp),tint=TextSecondary)
+        }
+        if(i<data.reservations.lastIndex)Line()
     }
 }
 @Composable private fun Budget(data:Workspace,onAdd:()->Unit) {

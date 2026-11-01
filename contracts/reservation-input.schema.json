@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:travel-app:reservation-input",
+  "title": "ReservationInput",
+  "description": "Shared create and full-replacement edit request. Cross-field instant/zone semantics are validated by the service; see docs/RESERVATION_API.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Manual reservation category.",
+      "enum": [
+        "flight",
+        "stay",
+        "transport",
+        "activity"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "description": "Nonblank title, at most 120 characters; server trims leading/trailing whitespace before persistence.",
+      "minLength": 1,
+      "maxLength": 120,
+      "pattern": "^[\\s\\S]*\\S[\\s\\S]*$"
+    },
+    "date": {
+      "type": "string",
+      "description": "Start local calendar date, 1900–2100 inclusive.",
+      "pattern": "^(?:(?:19[0-9]{2}|20[0-9]{2}|2100)-(?:(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:19(?:0[48]|[2468][048]|[13579][26])|20(?:00|0[48]|[2468][048]|[13579][26]))-02-29)(?![\\s\\S])",
+      "format": "date"
+    },
+    "time": {
+      "type": "string",
+      "description": "Start local clock time; empty means unknown.",
+      "default": "",
+      "pattern": "^(?:(?:[01][0-9]|2[0-3]):[0-5][0-9])?(?![\\s\\S])"
+    },
+    "reference": {
+      "type": "string",
+      "description": "User-entered booking reference; not proof of a provider booking.",
+      "default": "",
+      "maxLength": 120
+    },
+    "detail": {
+      "type": "string",
+      "description": "User-entered reservation notes.",
+      "default": "",
+      "maxLength": 4000
+    },
+    "status": {
+      "type": "string",
+      "description": "User-recorded state; changing it does not transact with a provider.",
+      "enum": [
+        "planned",
+        "confirmed",
+        "cancelled"
+      ],
+      "default": "planned"
+    },
+    "location": {
+      "type": "string",
+      "description": "Departure, check-in, pickup, or activity location.",
+      "default": "",
+      "maxLength": 200
+    },
+    "endLocation": {
+      "type": "string",
+      "description": "Arrival, checkout, or drop-off location.",
+      "default": "",
+      "maxLength": 200
+    },
+    "provider": {
+      "type": "string",
+      "description": "User-entered airline, property, operator, or booking provider.",
+      "default": "",
+      "maxLength": 120
+    },
+    "endDate": {
+      "type": "string",
+      "description": "End local calendar date, or empty; required for stays.",
+      "default": "",
+      "pattern": "^(?:(?:(?:19[0-9]{2}|20[0-9]{2}|2100)-(?:(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:19(?:0[48]|[2468][048]|[13579][26])|20(?:00|0[48]|[2468][048]|[13579][26]))-02-29))?(?![\\s\\S])"
+    },
+    "endTime": {
+      "type": "string",
+      "description": "End local clock time, or empty when unknown.",
+      "default": "",
+      "pattern": "^(?:(?:[01][0-9]|2[0-3]):[0-5][0-9])?(?![\\s\\S])"
+    },
+    "timeZone": {
+      "type": "string",
+      "description": "IANA zone ID for a known start clock; validated with the runtime zone database.",
+      "default": "",
+      "maxLength": 80
+    },
+    "endTimeZone": {
+      "type": "string",
+      "description": "IANA zone ID for a known end clock.",
+      "default": "",
+      "maxLength": 80
+    },
+    "cancellationDeadline": {
+      "type": "string",
+      "description": "Local cancellation deadline, or empty; minute precision without an appended zone.",
+      "default": "",
+      "pattern": "^(?:(?:(?:19[0-9]{2}|20[0-9]{2}|2100)-(?:(?:01|03|05|07|08|10|12)-(?:0[1-9]|[12][0-9]|3[01])|(?:04|06|09|11)-(?:0[1-9]|[12][0-9]|30)|02-(?:0[1-9]|1[0-9]|2[0-8]))|(?:19(?:0[48]|[2468][048]|[13579][26])|20(?:00|0[48]|[2468][048]|[13579][26]))-02-29)T(?:[01][0-9]|2[0-3]):[0-5][0-9])?(?![\\s\\S])"
+    },
+    "cancellationTimeZone": {
+      "type": "string",
+      "description": "IANA zone ID for a known cancellation deadline.",
+      "default": "",
+      "maxLength": 80
+    },
+    "cancellationPolicy": {
+      "type": "string",
+      "description": "User-recorded cancellation terms, not provider-authoritative policy.",
+      "default": "",
+      "maxLength": 2000
+    },
+    "utcOffset": {
+      "type": "string",
+      "description": "Explicit start offset. Required for a DST overlap; must match the zone at this local time.",
+      "default": "",
+      "pattern": "^(?:(?:Z|[+-](?:(?:0[0-9]|1[0-7]):[0-5][0-9](?::[0-5][0-9])?|18:00(?::00)?)))?(?![\\s\\S])"
+    },
+    "endUtcOffset": {
+      "type": "string",
+      "description": "Explicit end offset, with the same zone agreement rule.",
+      "default": "",
+      "pattern": "^(?:(?:Z|[+-](?:(?:0[0-9]|1[0-7]):[0-5][0-9](?::[0-5][0-9])?|18:00(?::00)?)))?(?![\\s\\S])"
+    },
+    "cancellationUtcOffset": {
+      "type": "string",
+      "description": "Explicit cancellation offset, with the same zone agreement rule.",
+      "default": "",
+      "pattern": "^(?:(?:Z|[+-](?:(?:0[0-9]|1[0-7]):[0-5][0-9](?::[0-5][0-9])?|18:00(?::00)?)))?(?![\\s\\S])"
+    }
+  },
+  "required": [
+    "type",
+    "title",
+    "date"
+  ]
+}
