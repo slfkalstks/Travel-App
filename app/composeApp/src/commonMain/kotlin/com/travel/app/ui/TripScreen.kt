@@ -28,7 +28,7 @@ import com.travel.app.data.*
             Text("${data.trip.startDate.take(4)}. ${shortDate(data.trip.startDate)} — ${shortDate(data.trip.endDate)} · ${data.trip.travelers}명",fontSize=14.sp,color=TextSecondary)
         }
         Tabs(listOf("일정","준비물","예약","경비"),tab,onSelect=onTab)
-        Column { when(tab){0->Schedule(data,selectedDay,{selectedDay=it},onAdd);1->Checklist(data,busy,onTask);2->Bookings(data,onFlights);else->Budget(data){onAdd("expense")}} }
+        Column { when(tab){0->Schedule(data,selectedDay,{selectedDay=it},onAdd);1->Checklist(data,busy,onTask,onAdd);2->Bookings(data,onFlights);else->Budget(data){onAdd("expense")}} }
     }
 }
 @Composable private fun Schedule(data:Workspace,day:String,onDay:(String)->Unit,onAdd:(String)->Unit) {
@@ -70,13 +70,26 @@ import com.travel.app.data.*
     }
 
 }
-@Composable private fun Checklist(data:Workspace,busy:Boolean,onTask:(TravelTask)->Unit) {
+@Composable private fun Checklist(data:Workspace,busy:Boolean,onTask:(TravelTask)->Unit,onAdd:(String)->Unit) {
     val done=data.tasks.count{it.done}
     Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.Bottom){Text("$done",fontSize=32.sp,fontWeight=FontWeight.Bold,color=Accent);Text(" / ${data.tasks.size}개 완료",Modifier.padding(bottom=5.dp,start=6.dp),fontSize=15.sp,color=TextSecondary)}
     Spacer(Modifier.height(16.dp));LinearProgressIndicator(progress={done.toFloat()/data.tasks.size.coerceAtLeast(1)},modifier=Modifier.fillMaxWidth().height(8.dp),color=Accent,trackColor=Grouped);Spacer(Modifier.height(24.dp))
-    data.tasks.groupBy{it.category}.forEach{(category,tasks)->
-        Text(categoryName(category),fontSize=18.sp,fontWeight=FontWeight.Bold);Spacer(Modifier.height(8.dp))
-        tasks.forEach{task->Row(Modifier.fillMaxWidth().heightIn(min=60.dp).toggleable(task.done,enabled=!busy,role=Role.Checkbox,onValueChange={onTask(task)}),verticalAlignment=Alignment.CenterVertically){Checkbox(task.done,onCheckedChange=null,enabled=!busy,colors=CheckboxDefaults.colors(checkedColor=TextPrimary));Spacer(Modifier.width(8.dp));Text(task.title,Modifier.weight(1f),fontSize=16.sp,color=if(task.done)TextSecondary else TextPrimary,textDecoration=if(task.done)TextDecoration.LineThrough else TextDecoration.None,lineHeight=24.sp)}}
+    ActionButton("준비물 추가",{onAdd("task-new")},Modifier.fillMaxWidth(),enabled=!busy,blue=true)
+    Spacer(Modifier.height(20.dp))
+    if(data.tasks.isEmpty())EmptyState("필요한 것을 적어보세요","챙길 물건과 예약 확인 사항을 관리할 수 있어요")
+    data.tasks.groupBy{it.category}.forEach { (category,tasks) ->
+        Text(categoryName(category),fontSize=18.sp,fontWeight=FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        tasks.forEach { task ->
+            Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically) {
+                Row(Modifier.weight(1f).heightIn(min=60.dp).toggleable(task.done,enabled=!busy,role=Role.Checkbox,onValueChange={onTask(task)}),verticalAlignment=Alignment.CenterVertically) {
+                    Checkbox(task.done,onCheckedChange=null,enabled=!busy,colors=CheckboxDefaults.colors(checkedColor=TextPrimary))
+                    Spacer(Modifier.width(8.dp))
+                    Text(task.title,Modifier.weight(1f),fontSize=16.sp,color=if(task.done)TextSecondary else TextPrimary,textDecoration=if(task.done)TextDecoration.LineThrough else TextDecoration.None,lineHeight=24.sp)
+                }
+                IconButton(onClick={onAdd("task-edit|${task.id}")},enabled=!busy) { Icon(Icons.Outlined.Edit,"${task.title} 수정",tint=TextSecondary,modifier=Modifier.size(20.dp)) }
+            }
+        }
         Spacer(Modifier.height(24.dp))
     }
 }

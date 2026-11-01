@@ -29,7 +29,7 @@ class DemoApiTest {
             .andExpect(jsonPath("$.trip.startDate").value("2026-11-12"))
             .andExpect(jsonPath("$.trip.endDate").value("2026-11-15"))
             .andExpect(jsonPath("$.events[0].id").value("ev-01"))
-            .andExpect(jsonPath("$.tasks.length()").value(10))
+            .andExpect(jsonPath("$.tasks[0].id").value("task-01"))
     }
     @Test fun `explicit task state is idempotent and survives repository restart`() {
         repeat(2) {
@@ -208,5 +208,83 @@ class DemoApiTest {
             .content(mapper.writeValueAsString(EventNoteRequest(accepted + "나"))))
             .andExpect(status().isBadRequest).andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
         assertEquals(accepted, WorkspaceRepository(mapper, dataPath.toString()).read().events.single { it.id == "ev-05" }.note)
+    }
+    @Test fun `full event edit preserves hidden fields and persists sorted itinerary`() {
+        val before = WorkspaceRepository(mapper, dataPath.toString()).read()
+        val original = before.events.single { it.id == "ev-06" }
+        val request = EventEditRequest("2026-11-14", "17:00", "17:45", "  시장 방문 변경  ", "place", "  교토  ", "변경 메모\n  둘째 줄")
+        mvc.perform(patch("/api/demo/events/ev-06").contentType("application/json").content(mapper.writeValueAsString(request)))
+            .andExpect(status().isOk)
+        val saved = WorkspaceRepository(mapper, dataPath.toString()).read()
+        assertEquals(original.copy(date = request.date, startTime = request.startTime, endTime = request.endTime,
+            title = "시장 방문 변경", category = "place", location = "교토", note = request.note), saved.events.single { it.id == original.id })
+        assertEquals(before.events.size, saved.events.size)
+        assertEquals(saved.events.sortedWith(compareBy({ it.date }, { it.startTime })), saved.events)
+        assertEquals(before.expenses, saved.expenses)
+    }
+    @Test fun `invalid event edits and missing identifier leave persisted workspace unchanged`() {
+        val valid = EventEditRequest("2026-11-13", "10:00", "11:00", "산책", "place", "난바", "")
+        val before = WorkspaceRepository(mapper, dataPath.toString()).read()
+        listOf(valid.copy(date = "2026-02-30"), valid.copy(date = "2026-11-11"), valid.copy(date = "2026-11-16"),
+            valid.copy(startTime = "24:00"), valid.copy(startTime = "9:00"), valid.copy(endTime = "10:00"),
+            valid.copy(endTime = "09:00"), valid.copy(title = " "), valid.copy(title = "가".repeat(121)),
+            valid.copy(category = "unknown"), valid.copy(location = "가".repeat(201)), valid.copy(note = "가".repeat(2001))).forEach { request ->
+            mvc.perform(patch("/api/demo/events/ev-07").contentType("application/json").content(mapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest)
+        }
+        mvc.perform(patch("/api/demo/events/absent").contentType("application/json").content(mapper.writeValueAsString(valid)))
+            .andExpect(status().isNotFound)
+        val withHiddenField = mapper.valueToTree<com.fasterxml.jackson.databind.node.ObjectNode>(valid).put("costKrw", 1)
+        mvc.perform(patch("/api/demo/events/ev-07").contentType("application/json").content(mapper.writeValueAsString(withHiddenField)))
+            .andExpect(status().isBadRequest)
+        assertEquals(before, WorkspaceRepository(mapper, dataPath.toString()).read())
+    }
+    @Test fun `event deletion persists and repeated deletion returns successful current workspace`() {
+        val body = EventRequest("2026-11-13", "22:00", "22:30", "삭제할 일정", "place")
+        val response = mvc.perform(post("/api/demo/events").contentType("application/json").content(mapper.writeValueAsString(body)))
+            .andExpect(status().isOk).andReturn().response.contentAsString
+        val created = mapper.readValue(response, Workspace::class.java).events.single { it.title == body.title }
+        repeat(2) { mvc.perform(delete("/api/demo/events/${created.id}")).andExpect(status().isOk).andExpect(jsonPath("$.trip.id").exists()) }
+        assertTrue(WorkspaceRepository(mapper, dataPath.toString()).read().events.none { it.id == created.id })
+    }
+    @Test fun `task create deduplicates across restart and delete retries never resurrect it`() {
+        val request = TaskRequest("충전 케이블 확인", "packing")
+        repeat(2) {
+            mvc.perform(post("/api/demo/tasks").header("Idempotency-Key", "task-create-retry")
+                .contentType("application/json").content(mapper.writeValueAsString(request))).andExpect(status().isOk)
+        }
+        val restarted = WorkspaceService(WorkspaceRepository(mapper, dataPath.toString()))
+        val reloaded = restarted.addTask(request, "task-create-retry")
+        val created = reloaded.tasks.single { it.title == request.title }
+        assertFalse(created.done)
+        assertEquals("packing", created.category)
+        repeat(2) { mvc.perform(delete("/api/demo/tasks/${created.id}")).andExpect(status().isOk) }
+        val afterDelete = WorkspaceService(WorkspaceRepository(mapper, dataPath.toString())).addTask(request, "task-create-retry")
+        assertTrue(afterDelete.tasks.none { it.id == created.id })
+    }
+    @Test fun `task detail edit preserves completion and rejects missing identifier`() {
+        mvc.perform(patch("/api/demo/tasks/task-08").contentType("application/json").content("""{"done":true}"""))
+            .andExpect(status().isOk)
+        val before = WorkspaceRepository(mapper, dataPath.toString()).read()
+        val request = TaskRequest("  예약 서류 확인  ", "booking")
+        mvc.perform(patch("/api/demo/tasks/task-08/details").contentType("application/json").content(mapper.writeValueAsString(request)))
+            .andExpect(status().isOk)
+        val saved = WorkspaceRepository(mapper, dataPath.toString()).read()
+        assertEquals(Task("task-08", "예약 서류 확인", "booking", true), saved.tasks.single { it.id == "task-08" })
+        assertEquals(before.tasks.size, saved.tasks.size)
+        mvc.perform(patch("/api/demo/tasks/absent/details").contentType("application/json").content(mapper.writeValueAsString(request)))
+            .andExpect(status().isNotFound)
+        assertEquals(saved, WorkspaceRepository(mapper, dataPath.toString()).read())
+    }
+    @Test fun `invalid task create and edit requests do not modify the workspace`() {
+        val before = WorkspaceRepository(mapper, dataPath.toString()).read()
+        val bodies = listOf("""{"title":" ","category":"packing"}""", """{"title":"준비","category":"other"}""",
+            mapper.writeValueAsString(TaskRequest("가".repeat(121), "packing")), """{"category":"packing"}""",
+            """{"title":"준비","category":"packing","done":true}""")
+        bodies.forEach { body ->
+            mvc.perform(post("/api/demo/tasks").contentType("application/json").content(body)).andExpect(status().isBadRequest)
+            mvc.perform(patch("/api/demo/tasks/task-09/details").contentType("application/json").content(body)).andExpect(status().isBadRequest)
+        }
+        assertEquals(before, WorkspaceRepository(mapper, dataPath.toString()).read())
     }
 }

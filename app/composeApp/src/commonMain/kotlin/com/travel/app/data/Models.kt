@@ -10,6 +10,8 @@ import kotlinx.serialization.Serializable
 @Serializable data class Reservation(val id: String, val type: String, val title: String, val date: String, val time: String, val reference: String, val detail: String, val status: String)
 @Serializable data class Favorite(val id: String, val title: String, val category: String, val location: String, val note: String, val saved: Boolean, val latitude: Double? = null, val longitude: Double? = null)
 @Serializable data class Journal(val id: String, val date: String, val title: String, val body: String, val mood: String)
+@Serializable data class TaskInput(val title: String, val category: String)
+@Serializable data class EventEditInput(val date: String, val startTime: String, val endTime: String, val title: String, val category: String, val location: String, val note: String)
 @Serializable data class EventNoteChange(val note: String)
 @Serializable data class TaskChange(val done: Boolean)
 @Serializable data class FavoriteChange(val saved: Boolean)

@@ -17,7 +17,7 @@ class Application : WebMvcConfigurer {
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/api/demo/**")
             .allowedOrigins("http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:8080", "http://127.0.0.1:8080")
-            .allowedMethods("GET", "POST", "PATCH", "OPTIONS")
+            .allowedMethods("GET", "POST", "PATCH", "DELETE", "OPTIONS")
     }
 }
 fun main(args: Array<String>) { runApplication<Application>(*args) }
@@ -28,9 +28,17 @@ class WorkspaceController(private val service: WorkspaceService) {
     @GetMapping("/workspace") fun workspace() = service.read()
     @GetMapping("/health") fun health() = mapOf("status" to "ok", "mode" to "local-demo")
     @PatchMapping("/tasks/{id}") fun task(@PathVariable id: String, @RequestBody request: DoneRequest) = service.setDone(id, request.done)
+    @PostMapping("/tasks") fun addTask(@Valid @RequestBody request: TaskRequest,
+        @RequestHeader("Idempotency-Key", required = false) key: String?) = service.addTask(request, key)
+    @PatchMapping("/tasks/{id}/details") fun editTask(@PathVariable id: String,
+        @Valid @RequestBody request: TaskRequest) = service.editTask(id, request)
+    @DeleteMapping("/tasks/{id}") fun deleteTask(@PathVariable id: String) = service.deleteTask(id)
     @PatchMapping("/favorites/{id}") fun favorite(@PathVariable id: String, @RequestBody request: SavedRequest) = service.setSaved(id, request.saved)
     @PatchMapping("/events/{id}/note") fun eventNote(@PathVariable id: String,
         @Valid @RequestBody request: EventNoteRequest) = service.setEventNote(id, request.note)
+    @PatchMapping("/events/{id}") fun editEvent(@PathVariable id: String,
+        @Valid @RequestBody request: EventEditRequest) = service.editEvent(id, request)
+    @DeleteMapping("/events/{id}") fun deleteEvent(@PathVariable id: String) = service.deleteEvent(id)
     @PostMapping("/expenses") fun expense(@Valid @RequestBody request: ExpenseRequest,
         @RequestHeader("Idempotency-Key", required = false) key: String?) = service.addExpense(request, key)
     @PostMapping("/events") fun event(@Valid @RequestBody request: EventRequest,

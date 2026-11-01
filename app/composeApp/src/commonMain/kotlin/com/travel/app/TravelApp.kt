@@ -84,7 +84,8 @@ import kotlinx.coroutines.delay
             }
             if(editor!=null&&state.workspace!=null) {
                 val dismiss={ if(!store.state.value.saving){editor=null;store.clearError()} }
-                if(editor!!.startsWith("event-detail|")) EventDetailScreen(editor!!.substringAfter('|'),state,store,dismiss)
+                if(editor!!.startsWith("event-detail|")) EventDetailScreen(editor!!.substringAfter('|'),state,store,onEdit={store.clearError();editor=it},onDismiss=dismiss)
+                else if(editor!!.startsWith("task-")) TaskEditorScreen(editor!!,state,store,dismiss)
                 else EditorDialog(editor!!,state,store,dismiss)
             }
         }

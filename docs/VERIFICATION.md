@@ -6,23 +6,26 @@
 
 | 대상 | 실행 | 결과 | 근거 |
 |---|---|---|---|
-| Spring API | `cd backend && ./gradlew test` | 18개, 실패 0, 오류 0 | `backend/build/test-results/test/TEST-com.yeohaeng.demo.DemoApiTest.xml` |
-| 공통 상태 관리 | `cd app && ./gradlew :composeApp:desktopTest` | 7개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.TravelStoreTest.xml` |
+| Spring API | `cd backend && ./gradlew test` | 24개, 실패 0, 오류 0 | `backend/build/test-results/test/TEST-com.yeohaeng.demo.DemoApiTest.xml` |
+| 공통 상태 관리 | `cd app && ./gradlew :composeApp:desktopTest` | 12개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.TravelStoreTest.xml` |
 | 외부 URL 처리 | 위 공통 테스트 명령 | 4개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.platform.ExternalUrlsTest.xml` |
 | Android | `cd app && ./gradlew :androidApp:assembleDebug` | 빌드·설치·실행 성공 | API 35 Android 에뮬레이터 |
 | iOS 프레임워크 | `cd app && ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64` | 빌드 성공 | Apple Silicon 시뮬레이터 |
 | iOS 호스트 | Xcode `MorrowTravel`, Debug, iPhone Simulator 빌드 | 빌드·설치·실행 성공 | iPhone 16 Pro / iOS 18.2 |
 
-공통 테스트의 JVM 타깃 이름은 `desktop`이지만 데스크톱 제품이나 실행 앱은 없다. 빌드·테스트 산출물은 Git에서 제외한다. 최종 라임 UI는 양 플랫폼에서 다시 빌드했다. 일정 메모 PATCH를 추가한 후 데이터·URL 테스트를 다시 실행했다. 메모 저장의 성공·실패 및 서버의 빈 값·길이 제한·재시도·영속화를 검증한다.
+공통 테스트의 JVM 타깃 이름은 `desktop`이지만 데스크톱 제품이나 실행 앱은 없다. 빌드·테스트 산출물은 Git에서 제외한다. 최종 라임 UI는 양 플랫폼에서 다시 빌드했다. 일정·준비물 수정과 DELETE 요청을 추가한 후 데이터·URL 테스트를 다시 실행했다. 메모 저장의 성공·실패 및 서버의 빈 값·길이 제한·재시도·영속화를 검증한다.
 
 ## 실제 모바일 화면 확인
 
 - 홈, 날짜별 일정, 준비물, 예약, 경비, 항공권, 장소, 기록, 설정의 이동과 표시.
 - 준비물 체크·해제, 장소 저장·해제의 서버 상태 반영.
+- 실제 iOS에서 기존 일정 카테고리 수정, 준비 항목 생성, 완료된 준비 항목의 카테고리 수정 후 저장 결과와 완료 상태 보존을 확인했다. 검수 후 변경한 분류는 원복하고 직접 생성한 검증용 항목만 정리했다.
+- 일정·준비물 삭제 확인창의 대상 표시와 취소 동작을 확인했다. 삭제 실행·재시도·실패 보존은 API 및 공통 데이터 계층 테스트로 검증했다.
 - 일정 상세 메모를 실제 iOS 입력으로 수정·저장하고 일정 카드 반영과 서버 영속화를 확인했다. 검증용 입력은 확인 후 원래 메모로 복원했다.
 - 날짜 위·큰 일차 아래 순서와 카드의 메모 미리보기를 실제 화면에서 확인했다.
 - 날짜 달력 열기와 취소, 공항 선택, 왕복·편도 조건.
 - 탭을 이동하고 돌아왔을 때 날짜·검색 상태 유지.
+- 기존 항공 일정의 수정 화면에서 선택된 카테고리가 가로 스크롤 안으로 자동 이동해 온전히 보임을 확인했다.
 - 다크 모드 전환과 설정에서 이전 화면 복귀.
 - 편집 경로·입력값·요청 키에 `rememberSaveable`을 적용하고, 저장 중 입력·날짜·카테고리 변경을 비활성화했다. 구성 변경 후 복원은 소스 검토 기준이며 모든 실제 기기의 회전 테스트를 완료했다는 의미는 아니다.
 - 필수 입력이 비어 있을 때 필드 옆 오류 표시와 해당 입력 포커스.

@@ -38,16 +38,16 @@ class TravelStore(
             catch(e: Exception) { mutable.update { it.copy(loading = false, error = "여행을 불러오지 못했어요. 연결을 확인한 뒤 다시 시도해 주세요.") } }
         }
     }
-    private inline fun <reified T> mutate(path: String, payload: T, patch: Boolean = false, success: String, operationId: String? = null, crossinline onSaved: () -> Unit = {}) {
+    private inline fun <reified T> mutate(path: String, payload: T, patch: Boolean = false, success: String, operationId: String? = null, delete: Boolean = false, crossinline onSaved: () -> Unit = {}) {
         if(mutable.value.saving || mutable.value.loading) return
         mutable.update { it.copy(saving = true, error = null) }
         scope.launch {
             try {
                 val response = client.request("$baseUrl/api/demo/$path") {
-                    method = if(patch) HttpMethod.Patch else HttpMethod.Post
+                    method = if(delete) HttpMethod.Delete else if(patch) HttpMethod.Patch else HttpMethod.Post
                     if(operationId != null) header("Idempotency-Key", operationId)
                     contentType(ContentType.Application.Json)
-                    setBody(payload)
+                    if(!delete) setBody(payload)
                 }
                 if(!response.status.isSuccess()) {
                     val message = try { response.body<ApiError>().message.takeIf { it.isNotBlank() } }
@@ -63,6 +63,11 @@ class TravelStore(
             catch(e: Exception) { mutable.update { it.copy(saving = false, error = "저장 결과를 확인하지 못했어요. 다시 불러와 저장 여부를 확인해 주세요.") } }
         }
     }
+    fun updateEvent(id: String, input: EventEditInput, onSaved: () -> Unit) = mutate("events/$id", input, true, "일정을 수정했어요", onSaved = onSaved)
+    fun deleteEvent(id: String, onSaved: () -> Unit) = mutate("events/$id", Unit, success = "일정을 삭제했어요", delete = true, onSaved = onSaved)
+    fun addTask(input: TaskInput, operationId: String, onSaved: () -> Unit) = mutate("tasks", input, success = "준비물을 추가했어요", operationId = operationId, onSaved = onSaved)
+    fun updateTask(id: String, input: TaskInput, onSaved: () -> Unit) = mutate("tasks/$id/details", input, true, "준비물을 수정했어요", onSaved = onSaved)
+    fun deleteTask(id: String, onSaved: () -> Unit) = mutate("tasks/$id", Unit, success = "준비물을 삭제했어요", delete = true, onSaved = onSaved)
     fun updateEventNote(id: String, note: String, onSaved: () -> Unit) = mutate("events/$id/note", EventNoteChange(note), true, "일정 메모를 저장했어요", onSaved = onSaved)
     fun toggleTask(task: TravelTask) = mutate("tasks/${task.id}", TaskChange(!task.done), true, "준비 상태를 저장했어요")
     fun toggleFavorite(favorite: Favorite) = mutate("favorites/${favorite.id}", FavoriteChange(!favorite.saved), true, if(favorite.saved) "저장한 장소에서 제외했어요" else "가고 싶은 곳에 저장했어요")

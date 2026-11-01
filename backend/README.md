@@ -36,8 +36,13 @@ Windows PowerShell에서는 JDK 21의 `JAVA_HOME`을 설정한 뒤 `backend` 폴
 | GET | `/api/demo/workspace` | 없음 |
 | GET | `/api/demo/health` | 없음 |
 | PATCH | `/api/demo/tasks/{id}` | `{"done":true}` |
+| POST | `/api/demo/tasks` | `{"title":"보조배터리 챙기기","category":"packing"}` |
+| PATCH | `/api/demo/tasks/{id}/details` | `{"title":"eSIM 설치 방법 확인","category":"booking"}` |
+| DELETE | `/api/demo/tasks/{id}` | 없음 |
 | PATCH | `/api/demo/favorites/{id}` | `{"saved":false}` |
 | PATCH | `/api/demo/events/{id}/note` | `{"note":"교통카드 챙기기"}` |
+| PATCH | `/api/demo/events/{id}` | `{"date":"2026-11-13","startTime":"10:00","endTime":"11:00","title":"공원 산책","category":"place","location":"오사카성 공원","note":"걷기 편한 신발"}` |
+| DELETE | `/api/demo/events/{id}` | 없음 |
 | POST | `/api/demo/expenses` | `{"title":"커피","category":"food","amountKrw":7500,"date":"2026-11-13","method":"카드"}` |
 | POST | `/api/demo/events` | `{"date":"2026-11-13","startTime":"10:00","endTime":"11:00","title":"산책","category":"place","location":"난바","note":"","costKrw":0}` |
 | POST | `/api/demo/journals` | `{"date":"2026-11-13","title":"오늘의 순간","body":"가을 골목을 걸었다.","mood":"행복"}` |
@@ -45,6 +50,10 @@ Windows PowerShell에서는 JDK 21의 `JAVA_HOME`을 설정한 뒤 `backend` 폴
 Workspace 키는 `trip`, `events`, `tasks`, `expenses`, `reservations`, `favorites`, `journals`입니다. 모델 원본은 `Models.kt`, 전체 예시는 `src/main/resources/seed-workspace.json`입니다. 누락될 수 있는 문자열은 빈 문자열로, 목록은 배열로 응답합니다. 알 수 없는 필드·필수 값 누락·잘못된 범주·잘못된 날짜는 400, 알 수 없는 ID는 404입니다. 오류 형식은 `{"code":"INVALID_INPUT","message":"…"}`입니다.
 
 일정 메모 PATCH는 해당 일정의 `note`만 변경하고 전체 workspace를 반환합니다. 최대 2,000자를 허용하며 빈 문자열 `{"note":""}`로 메모를 지웁니다. 줄바꿈과 공백은 그대로 저장합니다. 필드 누락·null·길이 초과는 400, 존재하지 않는 일정은 404이며, 실패한 요청은 기존 데이터를 변경하지 않습니다. 같은 내용을 다시 보내도 결과가 같으므로 별도 멱등성 키 없이 재시도할 수 있습니다.
+
+일정 전체 PATCH는 표의 일곱 필드를 모두 받습니다. 날짜·시간·제목·분류·장소·메모를 변경하고 기존 ID·예상 비용·위도·경도는 유지합니다. 날짜와 시간 검증은 생성과 같으며 목록을 날짜·시작 시각순으로 정렬합니다. 제목은 공백을 제외한 내용이 있어야 하고 최대 120자, 장소는 최대 200자, 메모는 최대 2,000자입니다. 제목·장소의 앞뒤 공백은 제거하고 메모 원문은 유지합니다.
+
+준비물 생성·상세 수정은 제목 최대 120자와 `packing` 또는 `booking` 분류를 받습니다. 생성 시 완료 상태는 `false`이며 `Idempotency-Key`를 지원합니다. 상세 수정은 ID와 완료 상태를 유지합니다. 없는 일정·준비물을 PATCH하면 404입니다. 일정·준비물 DELETE는 이미 삭제되었거나 없는 ID에도 최신 workspace와 200을 반환하여 안전하게 재시도할 수 있습니다. 삭제 후 이전 생성 요청을 같은 멱등성 키로 재전송해도 항목을 다시 만들지 않습니다. 모든 변경은 기존 원자적 저장 경로를 사용합니다.
 
 - 일정 날짜: 여행 기간 2026-11-12~15 안에 있어야 합니다. 기록 날짜는 여행 전 준비와 여행 후 회고를 위해 기간 밖도 허용하되 실제 달력 날짜여야 합니다.
 - 일정 시간: 현지 시각 `HH:mm`, 같은 날 종료 > 시작. 자정을 넘는 일정·출도착 시간대 별도 모델링은 다음 단계입니다.
@@ -70,6 +79,6 @@ iPhone 실기기의 `127.0.0.1`은 개발 Mac이 아니라 iPhone 자신입니�
 
 ## 검증
 
-테스트는 임시 파일 저장소와 실제 Spring MVC를 사용합니다. 파일 재로딩으로 재시작 후 저장 유지, PATCH 멱등성, 음수·소수 지출 거부, 잘못된 날짜·여행 기간·시간 범위·분류 거부, 존재하지 않는 ID, 필수 필드 누락, 외부 Origin 차단, 일정·기록·장소 저장 변경, POST 재시도 중복 방지·키 충돌·재시작 후 영수증 유지·기존 저장 파일 이전·여행 전후 기록 날짜, 일정 메모 수정·비우기·재로딩·길이 제한·실패 시 원본 유지를 검증합니다. **2026-11-01 기준 통합 테스트 18개 모두 통과**했으며 빌드한 JAR의 실제 HTTP health/workspace 응답 및 소수 금액 400 응답도 확인했습니다. 실제 예약 제공사 연동은 없습니다.
+테스트는 임시 파일 저장소와 실제 Spring MVC를 사용합니다. 파일 재로딩으로 재시작 후 저장 유지, PATCH 멱등성, 음수·소수 지출 거부, 잘못된 날짜·여행 기간·시간 범위·분류 거부, 존재하지 않는 ID, 필수 필드 누락, 외부 Origin 차단, 일정·기록·장소 저장 변경, POST 재시도 중복 방지·키 충돌·재시작 후 영수증 유지·기존 저장 파일 이전·여행 전후 기록 날짜, 일정 메모 수정·비우기·재로딩·길이 제한·실패 시 원본 유지, 일정 전체 수정의 숨은 필드 보존, 준비물 생성·상세 수정·완료 상태 보존, 삭제 재시도와 삭제 후 생성 요청 재시도 안전성을 검증합니다. **2026-11-01 기준 통합 테스트 24개 모두 통과**했으며 빌드한 JAR의 실제 HTTP health/workspace 응답 및 소수 금액 400 응답도 확인했습니다. 실제 예약 제공사 연동은 없습니다.
 
 기술 호환성 확인: [Spring Boot 3.5 공식 시스템 요구 사항](https://docs.spring.io/spring-boot/3.5/system-requirements.html). 이 데모는 기존 환경과의 연속성을 위해 3.5 계열을 선택했으며 최신 메이저라는 의미는 아닙니다.

@@ -22,6 +22,15 @@ data class Workspace(val trip: Trip, val events: List<TravelEvent>, val tasks: L
 data class DoneRequest(val done: Boolean)
 data class SavedRequest(val saved: Boolean)
 data class EventNoteRequest(@field:Size(max=2000) val note: String)
+data class TaskRequest(
+    @field:NotBlank @field:Size(max=120) val title: String,
+    @field:Pattern(regexp="packing|booking") val category: String)
+data class EventEditRequest(
+    val date: String, val startTime: String, val endTime: String,
+    @field:NotBlank @field:Size(max=120) val title: String,
+    @field:Pattern(regexp="flight|stay|food|place|transport") val category: String,
+    @field:Size(max=200) val location: String,
+    @field:Size(max=2000) val note: String)
 data class ExpenseRequest(
     @field:NotBlank @field:Size(max=120) val title: String,
     @field:Pattern(regexp="flight|stay|food|transport|shopping|other") val category: String,

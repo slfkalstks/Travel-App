@@ -5,6 +5,8 @@ import androidx.compose.foundation.interaction.*
 import androidx.compose.animation.core.*
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
@@ -63,9 +65,15 @@ val Hairline @Composable get() = MaterialTheme.colorScheme.outlineVariant
 @Composable fun Label(text:String,accent:Boolean=false) { Text(text,fontSize=13.sp,color=if(accent)Accent else TextSecondary,fontWeight=FontWeight.Medium) }
 @Composable fun EmptyState(title:String,body:String) { Column(Modifier.fillMaxWidth().padding(vertical=40.dp),verticalArrangement=Arrangement.spacedBy(8.dp)){Text(title,fontSize=18.sp,fontWeight=FontWeight.SemiBold);Text(body,color=TextSecondary,fontSize=14.sp,lineHeight=22.sp)} }
 @Composable fun Tabs(labels:List<String>,selected:Int,enabled:Boolean=true,onSelect:(Int)->Unit) {
+    val requesters=remember(labels){labels.map{BringIntoViewRequester()}}
+    LaunchedEffect(selected,requesters) {
+        // Wait for the selected chip's measured bounds before revealing its full width.
+        withFrameNanos { }
+        requesters.getOrNull(selected)?.bringIntoView()
+    }
     Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(8.dp)) {
         labels.forEachIndexed { i,label ->
-            Surface(color=if(i==selected)SignalInk else Grouped,shape=RoundedCornerShape(24.dp)) {
+            Surface(modifier=Modifier.bringIntoViewRequester(requesters[i]),color=if(i==selected)SignalInk else Grouped,shape=RoundedCornerShape(24.dp)) {
                 Box(Modifier.widthIn(min=52.dp).heightIn(min=48.dp).selectable(i==selected,enabled=enabled,role=Role.Tab,onClick={onSelect(i)}).padding(horizontal=18.dp,vertical=12.dp),contentAlignment=Alignment.Center) {
                     Text(label,fontSize=15.sp,fontWeight=if(i==selected)FontWeight.Bold else FontWeight.Medium,color=if(i==selected)Signal else TextSecondary)
                 }
