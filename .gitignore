@@ -15,6 +15,7 @@
 /backend/data/
 *.log
 *.pid
+~$*
 *.hprof
 
 # Reference repository checkouts; keep our installation and direction docs
