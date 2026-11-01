@@ -1,6 +1,6 @@
 # 구현 검증 기록
 
-검증일: 2026-11-01. 아래 결과는 저장소의 현재 구현 범위에 대한 확인이며 장기 PRD 전체의 출시 인증을 뜻하지 않는다.
+검증일: 2026-11-01. 아래 결과는 저장소의 현재 구현 범위에 대한 확인이며 장기 PRD 전체의 출시 인증을 뜻하지 않는다. 현재 사용자 범위는 **기획 발표와 실제 앱 화면 캡처**다. 발표 중 앱 실시간 시연은 하지 않으며 PPTX는 아직 만들지 않았다. 운영 기능의 추가 개발과 전면 인수 검증은 보류한다.
 
 ## 자동 검증
 
@@ -9,6 +9,7 @@
 | Spring 기존 API | `cd backend && ./gradlew test` | 24개, 실패 0, 오류 0 | `backend/build/test-results/test/TEST-com.yeohaeng.demo.DemoApiTest.xml` |
 | Spring 다중 여행 API | 위 서버 테스트 명령 | 9개, 실패 0, 오류 0 | `backend/build/test-results/test/TEST-com.yeohaeng.demo.MultitripApiTest.xml` |
 | Spring 예약 API | 위 서버 테스트 명령 | 13개, 실패 0, 오류 0 | `backend/build/test-results/test/TEST-com.yeohaeng.demo.ReservationApiTest.xml` |
+| Spring 문서 API | 위 서버 테스트 명령 | 17개, 실패 0, 오류 0 | `backend/build/test-results/test/TEST-com.yeohaeng.demo.DocumentApiTest.xml` |
 | 공통 상태 관리 | `cd app && ./gradlew :composeApp:desktopTest` | 12개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.TravelStoreTest.xml` |
 | 다중 여행 상태 관리 | 위 공통 테스트 명령 | 9개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.MultitripStoreTest.xml` |
 | 목적지 검색 | 위 공통 테스트 명령 | 4개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.DestinationCatalogTest.xml` |
@@ -16,11 +17,17 @@
 | 예약 현지 시각 | 위 공통 테스트 명령 | 5개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.ReservationTimeTest.xml` |
 | JVM 전체 시간대 전환 비교 | 위 공통 테스트 명령 | 1개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.ReservationTimeZoneRulesTest.xml` |
 | 외부 URL 처리 | 위 공통 테스트 명령 | 4개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.platform.ExternalUrlsTest.xml` |
-| Android | `cd app && ./gradlew :androidApp:assembleDebug` | 빌드·설치·실행 성공 | API 35 Android 에뮬레이터 |
+| 문서 업로드 상태 관리 | 위 공통 테스트 명령 | 4개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.DocumentUploadStoreTest.xml` |
+| 문서 해시·다운로드 캐시 | 위 공통 테스트 명령 | 12개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.DocumentCacheTest.xml` |
+| 문서 캐시 인덱스 복구 | 위 공통 테스트 명령 | 4개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.DocumentCacheRecoveryTest.xml` |
+| 여행 오프라인 조회 캐시 | 위 공통 테스트 명령 | 7개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.data.TravelOfflineCacheTest.xml` |
+| 파일 형식·플랫폼 공통 처리 | 위 공통 테스트 명령 | 4개, 실패 0, 오류 0 | `app/composeApp/build/test-results/desktopTest/TEST-com.travel.app.platform.DocumentPlatformTest.xml` |
+| iOS 공통 테스트 | `cd app && ./gradlew :composeApp:iosSimulatorArm64Test` | 69개, 실패 0, 오류 0 | `app/composeApp/build/test-results/iosSimulatorArm64Test/TEST-*.xml` |
+| Android | `cd app && ./gradlew :androidApp:assembleDebug` | 최종 APK 빌드 성공·releases 복사 | 최신 빌드 후 추가 설치 QA는 하지 않음. 앞선 설치·Activity 시작 기록과 구분 |
 | iOS 프레임워크 | `cd app && ./gradlew :composeApp:linkDebugFrameworkIosSimulatorArm64` | 빌드 성공 | Apple Silicon 시뮬레이터 |
-| iOS 호스트 | Xcode `MorrowTravel`, Debug, iPhone Simulator 빌드 | 빌드·설치·실행 성공 | iPhone 16 Pro / iOS 18.2 |
+| iOS 호스트 | Xcode `MorrowTravel`, Debug, iPhone Simulator 빌드 | 최종 호스트 빌드 성공 | 실제 iOS 조작 범위는 아래 항목으로 구분 |
 
-합계는 서버 46개, 공통 데이터·URL 및 JVM 전환 비교 39개다. 공통 테스트의 JVM 타깃 이름은 `desktop`이지만 데스크톱 제품이나 실행 앱은 없다. 빌드·테스트 산출물은 Git에서 제외한다. 예약 기능을 추가한 후 서버·공통 테스트와 Android·iOS 빌드를 다시 실행했다. 빌드 성공과 실제 화면 조작 확인은 아래와 같이 구분한다.
+최신 XML 합계는 **서버 63개·JVM 70개·iOS 69개**, 모두 실패 0·오류 0이다. JVM의 시간대 전체 전환 비교 1개는 iOS 테스트에 포함되지 않는다. 공통 테스트의 JVM 타깃 이름은 `desktop`이지만 데스크톱 제품이나 실행 앱은 없다. 빌드·테스트 산출물은 Git에서 제외한다. 문서·캐시 변경 후 서버 `test bootJar`와 공통 JVM/iOS 테스트·Android APK·iOS 호스트 빌드를 다시 확인했다. 최종 앱 Gradle 로그는 `/private/tmp/travel-showcase-final-tests.log`의 `BUILD SUCCESSFUL`이다. 빌드 성공과 실제 화면 조작 확인은 아래와 같이 구분한다.
 
 ## 다중 여행·기존 데이터 보존
 
@@ -50,7 +57,18 @@
 - 기존 항공 예약의 상세·편집 값, 삭제 영향 확인창과 취소를 확인했다. 네이티브에서 삭제 실행은 하지 않았으며 반복 삭제는 API 테스트와 직접 생성한 검증용 예약의 API 정리로 구분한다.
 - 예약 폼이 열리자마자 중간으로 이동하던 문제는 공용 분류 탭의 ancestor `bringIntoView` 요청이 원인이었다. 탭 자신의 가로 위치만 조정하도록 수정해 폼 상단 시작과 기존 항공 일정 편집의 선택된 항공 탭 전체 표시를 실제 iOS에서 다시 확인했다.
 - 서버 교체 전 원본 파일을 바이트 단위로 백업했다(SHA-256 `981bf6f35d2e420721a637d35ea746d028f0d17e07b3df0d9c2a95cc61389ddd`). 검수 후 직접 만든 예약만 API로 정리했으며 두 여행의 원래 자료·기존 예약의 모든 값과 순서가 보존됐음을 비교했다.
-- Android 최종 APK 빌드·설치·Activity 시작, iOS 최종 호스트 빌드·설치·실행을 확인했다. Android 예약 UI 조작, 두 모바일 플랫폼 전체 DST 조합·큰 글자·화면 회전은 추가 검증 대상이다. 첨부파일 연결은 아직 구현하지 않았다.
+- 예약 구현 당시 Android APK 빌드·설치·Activity 시작, iOS 호스트 빌드·설치·실행을 확인했다. 문서 변경을 포함한 최신 빌드 결과는 위 표와 구분한다. Android 예약 UI 조작, 두 모바일 플랫폼 전체 DST 조합·큰 글자·화면 회전은 미검증이다. 예약과 서류 연결의 구현·검증은 아래 문서 보관 항목으로 구분한다.
+
+## 문서 보관·예약 연결·조회 캐시
+
+- 계약 원본은 `document.schema.json`, `document-update.schema.json`이며 공통/서버 타입 생성기의 `--check`가 통과했다. 예시 4개가 유효하고 잘못된 편집 입력 32개·응답 필드 16개를 거절했다. [문서 HTTP 계약](DOCUMENTS_API.md)
+- 서버 17개 테스트는 PDF/JPEG/PNG 업로드·원본 다운로드의 bytes/MIME/길이/SHA, 실제 HTTP multipart 업로드, 파일 20MiB+1·전체 요청 22MiB의 413, 다른 여행 격리, 이름·예약 연결 수정, 예약 삭제 시 연결만 해제, 문서·여행 삭제, 멱등 재시도·다른 bytes 충돌·재시작·삭제한 기록 부활 방지, 이전 자료·영수증 보존을 확인했다.
+- 서버 저장 실패 시 신규 blob만 정리하고 기존 파일을 보존한다. 실제 삭제 권한 오류 후 반복 DELETE/새 서비스 시작에서 orphan 정리를 재시도하며, 다른 여행 live 파일·metadata·임의 파일·디렉터리·symlink 외부 원본을 보존하는 테스트도 통과했다. 임시 저장소를 사용한 API 검증이며 네이티브 화면에서 삭제 실행을 완료했다는 뜻은 아니다.
+- 업로드 상태 관리 4개는 multipart·여행 헤더·중복 요청 차단·같은 키 재시도·실패 입력 보존·다른 여행 응답 차단·문서 PATCH/DELETE와 선택한 여행 캐시 갱신을 확인했다.
+- 문서 캐시 12개·복구 4개·여행 오프라인 조회 7개는 크기/SHA 무결성 확인, 손상 bytes 열기 차단, 네트워크 없이 검증된 캐시를 opener 콜백에 전달, 내려받지 않은 파일 오류, 여행별 격리·삭제 캐시 정리, 손상 인덱스 원본 백업·복구와 쓰기 실패 재시도를 확인했다. 재생성한 상태 객체의 캐시 조회·여행 전환과 오프라인 변경 요청 차단, 서버 저장 성공과 로컬 캐시 실패 구분도 포함한다. 이는 데이터·캐시 로직의 자동 테스트이며 실제 앱 재시작 후 비행기 모드 UI/파일 열기의 종단 간 검증과 구분한다.
+- 실제 iOS에서 서류 진입·빈 목록, 시스템 파일 선택기 열기와 취소, PDF 선택·예약 연결·업로드, 상세 표시, 네이티브 입력으로 표시 이름 편집·저장, 삭제 영향 확인창 열기·취소를 확인했다. 파일 삭제 API 동작은 위 서버·공통 테스트로 확인했다.
+- **QuickLook에서 문서가 실제로 열리는 동작, 네이티브 공유 완료, 앱 재시작 후 오프라인 화면·파일 열기는 미검증**이다. Android 문서 UI의 실제 조작·기기별 파일 provider, 큰 글자·화면 회전도 전수 확인하지 않았다.
+- 현재 발표에는 앱의 실시간 조작 대신 실제 앱 캡처를 사용한다. 서류 캡처 52~56은 빈 목록·업로드·예약 연결·상세·삭제 확인창이며 전체 캡처는 56개다.
 
 ## 실제 모바일 화면 확인
 
@@ -75,14 +93,14 @@
 - 여행 보관/해제, 목록의 보관 탭 유지, 검색한 목록에서 편집 후 복귀할 때 검색어 유지, 오사카/도쿄 여행 전환을 확인했다. 비선택 도쿄 여행을 보관하고 돌아가도 오사카 홈이 유지된다.
 - 상단 여행 관리 메뉴와 삭제 영향 확인창(6종 관련 자료), 취소 후 편집 복귀를 확인했다. 여행 삭제 실행은 API·공통 상태 테스트 범위이며 네이티브에서 실행 완료로 기록하지 않는다.
 - 별도 빈 저장소에서 iOS 홈의 첫 여행 안내 → 입력 → 저장 → 새 여행 홈(일정·준비물 0개)을 확인했다. 검증 중 기존 저장 파일은 바이트 단위로 변경되지 않았고 이후 원래 서버로 복귀했다.
-- 최종 APK는 Android 에뮬레이터에 설치하고 Activity 시작 요청 성공을 확인했다. 새 다중 여행 흐름의 Android UI 조작, 큰 글자·회전은 추가 검증 대상이다.
+- 앞선 다중 여행 검수 단계의 APK는 Android 에뮬레이터 설치·Activity 시작 요청 성공을 확인했다. 문서 변경 후 최신 APK는 빌드와 releases 복사까지이며 추가 설치 QA는 하지 않았다. Android 다중 여행 UI 조작, 큰 글자·회전은 미검증이다.
 
-화면 캡처는 [README](../README.md)에 있으며 실제 시뮬레이터 앱을 촬영했다. 합성된 기기 화면을 실행 증거로 사용하지 않는다. 외부 항공편 결과는 제공자의 화면이며 실시간 가격을 앱 내부에서 수집하거나 결제하는 기능은 없다.
+실제 앱 화면 캡처 56개는 [README](../README.md)에 있으며 실제 시뮬레이터 앱을 촬영했다. 합성된 기기 화면을 실행 증거로 사용하지 않는다. 외부 항공편 결과는 제공자의 화면이며 실시간 가격을 앱 내부에서 수집하거나 결제하는 기능은 없다.
 
 ## 범위와 후속 검증
 
 입력 저장의 서버 계약·입력 검증·멱등성 및 상태 계층의 실패 보존은 자동 테스트로 확인했다. 모든 입력 조합의 모바일 종단 간 자동 테스트, VoiceOver/TalkBack 전수 사용성 평가, 큰 글자와 모든 기기 크기, 실제 기기·스토어 배포는 아직 확인하지 않았다.
 
-서버는 loopback 주소의 단일 사용자 개발 환경이며 로그인·권한, PostgreSQL 실제 연결, 오프라인 동기화, 파일 첨부, 자체 실시간 운임 API·예약·결제는 아직 구현하지 않았다. 전체 FR-01~24·NFR-01~08은 [전체 목표 감사](../GOAL_AUDIT.md)에서 추적하며 전체 완료로 판정하지 않는다. 실행·실기기 연결 조건은 [플랫폼 문서](../app/PLATFORMS.md)를 따른다.
+서버는 loopback 주소의 단일 사용자 개발 환경이다. 파일 첨부·예약 연결·검증된 파일 캐시와 여행 metadata 오프라인 조회는 위 범위까지 구현했다. 로그인·사용자 권한, PostgreSQL 실제 연결, 오프라인 편집·동기화 큐/다중 기기 충돌 처리, 자체 실시간 운임 API·예약·결제는 미구현이며 **현재 보류한 장기 백로그**다. 전체 FR-01~24·NFR-01~08은 [전체 목표 감사](../GOAL_AUDIT.md)에서 추적하며 전체 완료로 판정하지 않는다. 실행·실기기 연결 조건은 [플랫폼 문서](../app/PLATFORMS.md)를 따른다. 남은 운영 기능·기기 인수 조건을 현재 발표 준비를 위한 추가 개발 과제로 취급하지 않는다.
 
 21st 설치와 스킬 지침 확인은 완료했지만 원격 검색은 인증되지 않았다. 웹 전용 검사에서 Kotlin 파일이 0개 검토된 결과를 코드 검증 통과로 기록하지 않는다. [도구 적용 기록](redesign-review.md)
